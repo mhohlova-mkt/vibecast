@@ -1,0 +1,135 @@
+/* Карточка статьи в ленте. Значения 1:1 из прототипа (класс .vc-news). */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #deddd2;
+  border-radius: 22px;
+  cursor: pointer;
+  color: #15160f;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 34px -22px rgba(21, 22, 15, 0.5);
+}
+
+/* Обложка-фото: свёрнута до 62px, раскрывается до 260px. */
+.photo {
+  margin: -24px -24px 2px;
+  border-radius: 21px 21px 0 0;
+  overflow: hidden;
+  max-height: 62px;
+  transition: max-height 0.85s cubic-bezier(0.33, 1, 0.4, 1);
+}
+
+.card:hover .photo {
+  max-height: 260px;
+  transition: max-height 0.75s cubic-bezier(0.25, 0.9, 0.3, 1);
+}
+
+/* Генеративная плашка, когда обложки нет: 8px → 128px. */
+.art {
+  position: relative;
+  margin: -24px -24px 2px;
+  border-radius: 21px 21px 0 0;
+  overflow: hidden;
+  height: 8px;
+  flex-shrink: 0;
+  transition: height 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card:hover .art {
+  height: 128px;
+}
+
+.artIco {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #15160f;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.3s ease 0.08s,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) 0.08s;
+}
+
+.card:hover .artIco {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.catRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cat {
+  align-self: flex-start;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 6px 0 0;
+  font-size: 20px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.excerpt {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #6b6c60;
+  flex: 1;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 14px;
+  border-top: 1px solid #ecebe2;
+}
+
+.author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3b30;
+}
+
+.footArrow {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #d6d5c9;
+  color: #15160f;
+  flex-shrink: 0;
+}

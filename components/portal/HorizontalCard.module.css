@@ -1,0 +1,90 @@
+/* Горизонтальная карточка разделов «Инструменты» / «Обучение». 1:1 из прототипа. */
+
+.card {
+  display: flex;
+  gap: 0;
+  background: #ffffff;
+  border: 1px solid #deddd2;
+  border-radius: 22px;
+  overflow: hidden;
+  cursor: pointer;
+  flex-wrap: wrap;
+  color: #15160f;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 34px -22px rgba(21, 22, 15, 0.5);
+}
+
+.cover {
+  flex: 0 0 clamp(220px, 32%, 360px);
+  min-height: 190px;
+}
+
+.body {
+  flex: 1;
+  min-width: min(100%, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(20px, 2.6vw, 28px);
+}
+
+.cat {
+  align-self: flex-start;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(19px, 2.2vw, 24px);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.excerpt {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #6b6c60;
+  flex: 1;
+  max-width: 64ch;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 12px;
+  border-top: 1px solid #ecebe2;
+}
+
+.author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3b30;
+}
+
+.footArrow {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #d6d5c9;
+  color: #15160f;
+  flex-shrink: 0;
+}

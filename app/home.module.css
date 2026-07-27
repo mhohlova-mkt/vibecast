@@ -1,0 +1,74 @@
+/* Главная (лента). Сетка и отступы 1:1 из прототипа. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.heroSection {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 50px) clamp(16px, 4vw, 40px) clamp(18px, 3vw, 30px);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.rail {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feedSection {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 46px) clamp(16px, 4vw, 40px) clamp(20px, 3vw, 30px);
+}
+
+.feedHead {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: clamp(20px, 3vw, 30px);
+}
+
+.kicker {
+  align-self: flex-start;
+  border: 1px solid #15160f;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #15160f;
+}
+
+.feedTitle {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.empty {
+  margin: 0;
+  font-size: 15px;
+  color: #6b6c60;
+}

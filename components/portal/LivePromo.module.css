@@ -1,0 +1,210 @@
+/* Промо эфира в правой колонке главной. Значения 1:1 из прототипа. */
+
+.promo {
+  display: flex;
+  flex-direction: column;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #15160f;
+  color: #f4f3ec;
+  position: relative;
+}
+
+.inner {
+  padding: clamp(20px, 2.4vw, 26px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.liveBadge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5402f;
+  border-radius: 999px;
+  padding: 6px 13px;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5402f;
+  animation: vc-pulse 1.4s infinite;
+}
+
+@keyframes vc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.78);
+  }
+}
+
+.liveLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #ff7a6b;
+}
+
+.nextBadge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #4a4b40;
+  border-radius: 999px;
+  padding: 6px 13px;
+}
+
+.nextDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b6c60;
+}
+
+.nextLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #c7c6ba;
+}
+
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0c0d08;
+  border: 1px solid #2a2b22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(244, 243, 236, 0.035) 0 10px,
+    transparent 10px 20px
+  );
+}
+
+.liveChip {
+  position: absolute;
+  top: 11px;
+  left: 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #e5402f;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+}
+
+.playMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--accent, #cbf54a);
+}
+
+.soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.soonMark {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px dashed #4a4b40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.soonWhen {
+  font-size: 13px;
+  color: #a9b29c;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 24px);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.speakerRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.speakerAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.speaker {
+  font-size: 13.5px;
+  color: #a9b29c;
+}
+
+.ctaSolid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: none;
+  background: var(--accent, #cbf54a);
+  color: #15160f;
+  font-weight: 800;
+  font-size: 15.5px;
+  padding: 15px;
+  border-radius: 14px;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.ctaGhost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1.5px solid var(--accent, #cbf54a);
+  background: transparent;
+  color: var(--accent, #cbf54a);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}

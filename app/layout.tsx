@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import { Archivo, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
+// Archivo не отдаёт кириллический сабсет — как и в прототипе, кириллица
+// падает на системный гротеск, латиница идёт в Archivo.
 const archivo = Archivo({
-  subsets: ['latin', 'cyrillic'],
+  subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-archivo',
   display: 'swap',
