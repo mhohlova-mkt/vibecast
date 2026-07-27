@@ -155,6 +155,9 @@ fi
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
 log "Служба systemd"
+# npm может лежать в /usr/bin, /usr/local/bin или /snap/bin — берём фактический.
+NPM_BIN="$(command -v npm)"
+NODE_DIR="$(dirname "$(command -v node)")"
 cat > /etc/systemd/system/vibecast.service <<EOF
 [Unit]
 Description=vibecast portal
@@ -166,7 +169,8 @@ User=${APP_USER}
 WorkingDirectory=${APP_DIR}
 EnvironmentFile=${APP_DIR}/.env
 Environment=PORT=3000
-ExecStart=/usr/bin/npm run start
+Environment=PATH=${NODE_DIR}:/usr/local/bin:/usr/bin:/bin
+ExecStart=${NPM_BIN} run start
 Restart=always
 RestartSec=5
 
