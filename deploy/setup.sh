@@ -16,19 +16,60 @@ log() { printf '\n\033[1;32m==> %s\033[0m\n' "$*"; }
 log "Обновляем пакеты"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq curl git nginx ufw fail2ban ca-certificates gnupg sqlite3
+apt-get install -y -qq curl git nginx ufw fail2ban ca-certificates gnupg sqlite3 xz-utils
 
 log "Ставим Node.js ${NODE_MAJOR}"
-if ! command -v node >/dev/null || [ "$(node -v | cut -c2- | cut -d. -f1)" != "$NODE_MAJOR" ]; then
+
+node_ok() {
+  command -v node >/dev/null 2>&1 &&
+    [ "$(node -v | cut -c2- | cut -d. -f1)" -ge 20 ] 2>/dev/null
+}
+
+# Способ 1 — репозиторий NodeSource (из РФ бывает недоступен).
+try_nodesource() {
   mkdir -p /etc/apt/keyrings
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |
-    gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg --yes
+  curl -fsSL --max-time 40 https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |
+    gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg --yes || return 1
   echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list
-  apt-get update -qq
-  apt-get install -y -qq nodejs
+  apt-get update -qq && apt-get install -y -qq nodejs
+}
+
+# Способ 2 — официальный архив с nodejs.org.
+try_tarball() {
+  local file url tmp
+  file=$(curl -fsSL --max-time 40 "https://nodejs.org/dist/latest-v${NODE_MAJOR}.x/" |
+    grep -oE "node-v${NODE_MAJOR}\.[0-9]+\.[0-9]+-linux-x64\.tar\.xz" | head -1) || return 1
+  [ -n "$file" ] || return 1
+  url="https://nodejs.org/dist/latest-v${NODE_MAJOR}.x/${file}"
+  tmp=$(mktemp -d)
+  curl -fsSL --max-time 300 -o "$tmp/node.tar.xz" "$url" || { rm -rf "$tmp"; return 1; }
+  tar -xJf "$tmp/node.tar.xz" -C "$tmp" || { rm -rf "$tmp"; return 1; }
+  cp -rf "$tmp"/node-v*/{bin,include,lib,share} /usr/local/
+  rm -rf "$tmp"
+  hash -r
+}
+
+# Способ 3 — snap (обычно доступен, когда прямые загрузки режут).
+try_snap() {
+  command -v snap >/dev/null 2>&1 || apt-get install -y -qq snapd || return 1
+  snap install node --classic --channel="${NODE_MAJOR}" || return 1
+  ln -sf /snap/bin/node /usr/local/bin/node
+  ln -sf /snap/bin/npm /usr/local/bin/npm
+  ln -sf /snap/bin/npx /usr/local/bin/npx
+  hash -r
+}
+
+if ! node_ok; then
+  for method in try_nodesource try_tarball try_snap; do
+    echo "--- пробуем: ${method#try_}"
+    if "$method" && node_ok; then break; fi
+    echo "--- не вышло: ${method#try_}, идём дальше"
+  done
 fi
-node -v
+
+node_ok || { echo "ОШИБКА: не удалось поставить Node.js 20+"; exit 1; }
+echo "Node: $(node -v), npm: $(npm -v)"
 
 # ─────────────── SSH: свой порт + только по ключу ───────────────
 # Фильтрация на пути к серверу убивает SSH на 22-м порту, поэтому
