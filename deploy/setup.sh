@@ -88,9 +88,16 @@ EOF
   chmod 600 "$APP_DIR/.env"
 fi
 
-npm ci --omit=dev --no-audit --no-fund || npm install --no-audit --no-fund
+# Сборка next требует и dev-зависимостей (typescript, @types) — ставим всё.
+npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+npx prisma generate
 npx prisma migrate deploy
 npm run build
+
+# Первый запуск: наполняем базу демо-контентом, если она пустая.
+if [ "$(sqlite3 "${APP_DIR}/data/vibecast.db" 'select count(*) from Article' 2>/dev/null || echo 0)" = "0" ]; then
+  npx tsx prisma/seed.ts || echo "сид пропущен"
+fi
 
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
