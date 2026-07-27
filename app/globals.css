@@ -43,7 +43,7 @@ body {
 body {
   background: var(--bg);
   color: var(--dark);
-  font-family: Archivo, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

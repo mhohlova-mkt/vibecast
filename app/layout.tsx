@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import { Archivo, JetBrains_Mono } from 'next/font/google'
+import { Geologica, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-// Archivo не отдаёт кириллический сабсет — как и в прототипе, кириллица
-// падает на системный гротеск, латиница идёт в Archivo.
-const archivo = Archivo({
-  subsets: ['latin', 'latin-ext'],
+// Geologica — гротеск с полной кириллицей. Пришла на смену Archivo из
+// макета: у той кириллического начертания нет, и русский текст падал на
+// системный шрифт со сплющенными метриками.
+const sans = Geologica({
+  subsets: ['latin', 'cyrillic'],
   weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-archivo',
+  variable: '--font-sans',
   display: 'swap',
 })
 
@@ -28,8 +29,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru" className={`${archivo.variable} ${mono.variable}`}>
-      <body style={{ fontFamily: 'var(--font-archivo), Archivo, sans-serif' }}>
+    <html lang="ru" className={`${sans.variable} ${mono.variable}`}>
+      <body style={{ fontFamily: 'var(--font-sans), system-ui, sans-serif' }}>
         {children}
       </body>
     </html>
