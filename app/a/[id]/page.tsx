@@ -7,6 +7,12 @@ import Footer from '@/components/portal/Footer'
 import Avatar from '@/components/portal/Avatar'
 import ArticleBody from '@/components/portal/ArticleBody'
 
+// Контентом управляет админка — страницы обязаны рендериться на каждый
+// запрос. Иначе Next запекает их в статику на сборке и правки редакции
+// на сайте не появляются.
+export const dynamic = 'force-dynamic'
+
+
 type Params = { params: Promise<{ id: string }> }
 
 /** Дефолт пропорций обложки из прототипа. */

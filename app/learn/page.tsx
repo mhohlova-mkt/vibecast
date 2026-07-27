@@ -3,6 +3,12 @@ import { getHome, getPublishedArticles } from '@/lib/portal'
 import SectionShell from '@/components/portal/SectionShell'
 import HorizontalCard from '@/components/portal/HorizontalCard'
 
+// Контентом управляет админка — страницы обязаны рендериться на каждый
+// запрос. Иначе Next запекает их в статику на сборке и правки редакции
+// на сайте не появляются.
+export const dynamic = 'force-dynamic'
+
+
 export const metadata: Metadata = {
   title: 'Обучение и разборы — vibecast',
   description:

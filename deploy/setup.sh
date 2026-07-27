@@ -8,7 +8,8 @@ APP_USER=vibecast
 NODE_MAJOR=22
 REPO="${REPO:-}"          # https://github.com/<owner>/<repo>.git
 DOMAIN="${DOMAIN:-}"      # пусто — работаем по IP, без HTTPS
-SSH_PORT="${SSH_PORT:-443}"
+# 443 держим свободным под HTTPS сайта — SSH остаётся на 22.
+SSH_PORT="${SSH_PORT:-22}"
 ADMIN_KEY="${ADMIN_KEY:-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGTNApdtDBKW/JrKAOeNf+Uxg/m24nyCuT6v9HM5VkA9 kirill-mac-magi}"
 
 log() { printf '\n\033[1;32m==> %s\033[0m\n' "$*"; }
@@ -71,10 +72,8 @@ fi
 node_ok || { echo "ОШИБКА: не удалось поставить Node.js 20+"; exit 1; }
 echo "Node: $(node -v), npm: $(npm -v)"
 
-# ─────────────── SSH: свой порт + только по ключу ───────────────
-# Фильтрация на пути к серверу убивает SSH на 22-м порту, поэтому
-# слушаем ещё и 443 — его инспектируют редко.
-log "Настраиваем SSH (порты 22 и ${SSH_PORT}, вход по ключу)"
+# ─────────────── SSH: только по ключу ───────────────
+log "Настраиваем SSH (порт ${SSH_PORT}, вход по ключу)"
 systemctl disable --now ssh.socket 2>/dev/null || true
 
 # В образе этого хостинга основной sshd_config не подключает каталог
@@ -84,11 +83,14 @@ if ! grep -qE '^\s*Include\s+/etc/ssh/sshd_config\.d/' /etc/ssh/sshd_config; the
   SSH_CONF=/etc/ssh/sshd_config
   # Убираем прежние наши строки, чтобы не плодить дубли при повторном запуске.
   sed -i '/# --- vibecast ---/,/# --- \/vibecast ---/d' "$SSH_CONF"
+  # И любые одиночные Port 443 от прежних попыток — иначе sshd занимает
+  # порт, нужный сайту под HTTPS.
+  sed -i 's/^[[:space:]]*Port[[:space:]]\+443[[:space:]]*$/#&/' "$SSH_CONF"
 fi
+rm -f /etc/ssh/sshd_config.d/10-alt.conf
 
 cat >> "$SSH_CONF" <<EOF
 # --- vibecast ---
-Port 22
 Port ${SSH_PORT}
 PermitRootLogin prohibit-password
 PasswordAuthentication no
@@ -107,7 +109,6 @@ fi
 sshd -t && systemctl enable --now ssh && systemctl restart ssh
 
 log "Файрвол и защита от перебора"
-ufw allow 22/tcp
 ufw allow "${SSH_PORT}/tcp"
 ufw allow 80/tcp
 ufw allow 443/tcp
@@ -145,12 +146,14 @@ fi
 npm ci --no-audit --no-fund || npm install --no-audit --no-fund
 npx prisma generate
 npx prisma migrate deploy
+# Наполняем базу демо-контентом до сборки. Ошибку не глушим: пустой
+# портал молча — хуже, чем явный сбой установки.
+if [ "$(sqlite3 "${APP_DIR}/data/vibecast.db" 'select count(*) from Article' 2>/dev/null || echo 0)" = "0" ]; then
+  npx tsx prisma/seed.ts
+fi
+
 npm run build
 
-# Первый запуск: наполняем базу демо-контентом, если она пустая.
-if [ "$(sqlite3 "${APP_DIR}/data/vibecast.db" 'select count(*) from Article' 2>/dev/null || echo 0)" = "0" ]; then
-  npx tsx prisma/seed.ts || echo "сид пропущен"
-fi
 
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 

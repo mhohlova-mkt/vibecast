@@ -4,6 +4,12 @@ import { getPage, getPages } from '@/lib/portal'
 import SectionShell from '@/components/portal/SectionShell'
 import styles from './page.module.css'
 
+// Контентом управляет админка — страницы обязаны рендериться на каждый
+// запрос. Иначе Next запекает их в статику на сборке и правки редакции
+// на сайте не появляются.
+export const dynamic = 'force-dynamic'
+
+
 /** Страницы компании (about / speakers / contacts) — из футера. */
 
 type Params = { params: Promise<{ id: string }> }

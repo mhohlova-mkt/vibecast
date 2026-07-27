@@ -13,6 +13,12 @@ import Banner from '@/components/portal/Banner'
 import ArticleCard from '@/components/portal/ArticleCard'
 import styles from './home.module.css'
 
+// Контентом управляет админка — страницы обязаны рендериться на каждый
+// запрос. Иначе Next запекает их в статику на сборке и правки редакции
+// на сайте не появляются.
+export const dynamic = 'force-dynamic'
+
+
 export default async function Home() {
   const [home, feed, broadcasts, pages] = await Promise.all([
     getHome(),
