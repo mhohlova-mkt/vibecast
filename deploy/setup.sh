@@ -17,7 +17,40 @@ log() { printf '\n\033[1;32m==> %s\033[0m\n' "$*"; }
 log "Обновляем пакеты"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq curl git nginx ufw fail2ban ca-certificates gnupg sqlite3 xz-utils
+apt-get install -y -qq curl git nginx ufw fail2ban ca-certificates gnupg sqlite3 xz-utils iptables
+
+log "Размер пакета (MTU)"
+# Путь до сервера может идти через VPN-туннель с MTU ~1376. Определение
+# размера пакета на лету (PMTU) работает только если проходят ICMP-ответы,
+# а их обычно режут — тогда крупные пакеты теряются молча: соединение
+# устанавливается, но ответы сервера не доходят.
+# Ограничиваем MSS на исходящих SYN-ACK — сервер сам не будет слать лишнего.
+IFACE="$(ip route show default | awk '/default/ {print $5; exit}')"
+if [ -n "$IFACE" ]; then
+  iptables -t mangle -C POSTROUTING -o "$IFACE" -p tcp --tcp-flags SYN,RST SYN \
+    -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null ||
+  iptables -t mangle -A POSTROUTING -o "$IFACE" -p tcp --tcp-flags SYN,RST SYN \
+    -j TCPMSS --set-mss 1240
+  echo "MSS ограничен на ${IFACE}"
+
+  # Закрепляем на перезагрузки.
+  cat > /etc/systemd/system/vibecast-mss.service <<EOF
+[Unit]
+Description=vibecast MSS clamp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c '/usr/sbin/iptables -t mangle -C POSTROUTING -o ${IFACE} -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1240 2>/dev/null || /usr/sbin/iptables -t mangle -A POSTROUTING -o ${IFACE} -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1240'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  systemctl enable --now vibecast-mss >/dev/null 2>&1 || true
+fi
 
 log "Ставим Node.js ${NODE_MAJOR}"
 
