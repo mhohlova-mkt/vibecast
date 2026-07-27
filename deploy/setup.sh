@@ -9,7 +9,7 @@ NODE_MAJOR=22
 REPO="${REPO:-}"          # https://github.com/<owner>/<repo>.git
 DOMAIN="${DOMAIN:-}"      # пусто — работаем по IP, без HTTPS
 SSH_PORT="${SSH_PORT:-443}"
-ADMIN_KEY="${ADMIN_KEY:-}" # публичный ключ для доступа по SSH
+ADMIN_KEY="${ADMIN_KEY:-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGTNApdtDBKW/JrKAOeNf+Uxg/m24nyCuT6v9HM5VkA9 kirill-mac-magi}"
 
 log() { printf '\n\033[1;32m==> %s\033[0m\n' "$*"; }
 
@@ -35,12 +35,24 @@ node -v
 # слушаем ещё и 443 — его инспектируют редко.
 log "Настраиваем SSH (порты 22 и ${SSH_PORT}, вход по ключу)"
 systemctl disable --now ssh.socket 2>/dev/null || true
-cat > /etc/ssh/sshd_config.d/10-vibecast.conf <<EOF
+
+# В образе этого хостинга основной sshd_config не подключает каталог
+# sshd_config.d — поэтому пишем туда, куда sshd действительно смотрит.
+SSH_CONF=/etc/ssh/sshd_config.d/10-vibecast.conf
+if ! grep -qE '^\s*Include\s+/etc/ssh/sshd_config\.d/' /etc/ssh/sshd_config; then
+  SSH_CONF=/etc/ssh/sshd_config
+  # Убираем прежние наши строки, чтобы не плодить дубли при повторном запуске.
+  sed -i '/# --- vibecast ---/,/# --- \/vibecast ---/d' "$SSH_CONF"
+fi
+
+cat >> "$SSH_CONF" <<EOF
+# --- vibecast ---
 Port 22
 Port ${SSH_PORT}
 PermitRootLogin prohibit-password
 PasswordAuthentication no
 KbdInteractiveAuthentication no
+# --- /vibecast ---
 EOF
 
 if [ -n "$ADMIN_KEY" ]; then
