@@ -1,0 +1,15 @@
+/* Страницы компании: заголовок + абзацы. Типографика как в статье. */
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 72ch;
+}
+
+.paragraph {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #3a3b30;
+}
