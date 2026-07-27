@@ -1,0 +1,150 @@
+// Схема данных vibecast — по design_handoff_vibecast/README.md
+// Прототип хранил всё в localStorage (ключ vibecast_store); здесь это БД.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Пользователь админки. Вход по email + паролю (bcrypt).
+/// role: owner | editor | moderator — owner нельзя удалить.
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String?
+  role         String    @default("editor")
+  invited      Boolean   @default(false)
+  lastSeenAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Трансляция. status: draft | scheduled | live | recorded
+model Broadcast {
+  id            String   @id @default(cuid())
+  title         String
+  speaker       String   @default("")
+  role          String   @default("")
+  speakerAvatar String?
+  date          String   @default("") // YYYY-MM-DD
+  time          String   @default("") // HH:MM
+  status        String   @default("draft")
+  link          String   @default("") // https://telemost.yandex.ru/j/…
+  embed         Boolean  @default(false)
+  chat          Boolean  @default(false)
+  pollQuestion  String?
+  pollOptions   String? // JSON: string[] (2..6)
+  recordingUrl  String?
+  tags          String   @default("")
+  desc          String   @default("")
+  sortIndex     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  votes PollVote[]
+}
+
+/// Голос в опросе — один на зрителя (по email).
+model PollVote {
+  id          String    @id @default(cuid())
+  broadcastId String
+  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  email       String
+  optionIndex Int
+  createdAt   DateTime  @default(now())
+
+  @@unique([broadcastId, email])
+}
+
+/// Рубрика статьи. bg: hex | 'accent'
+model Category {
+  id        String    @id @default(cuid())
+  name      String // UPPERCASE
+  bg        String    @default("accent")
+  text      String    @default("#15160F")
+  sortIndex Int       @default(0)
+  articles  Article[]
+}
+
+/// Статья. status: draft | published; sec: feed | tools | learn
+model Article {
+  id           String    @id @default(cuid())
+  title        String
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author       String    @default("")
+  authorAvatar String?
+  excerpt      String    @default("")
+  status       String    @default("draft")
+  coverSrc     String?
+  coverRatio   String? // "W/H"
+  sec          String    @default("feed")
+  blocks       String    @default("[]") // JSON: [{type,content,caption,url}]
+  views        Int       @default(0)
+  publishedAt  DateTime?
+  sortIndex    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Страница компании: about | speakers | contacts
+model Page {
+  id        String   @id // about | speakers | contacts
+  title     String
+  body      String   @default("") // абзацы через \n\n
+  updatedAt DateTime @updatedAt
+}
+
+/// Подписчик/зритель. Регистрация без пароля: имя + email.
+model Subscriber {
+  id        String   @id @default(cuid())
+  name      String   @default("")
+  email     String   @unique
+  digest    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+/// Одна строка (id = "home"): настройки главной.
+model Home {
+  id            String   @id @default("home")
+  heroArticleId String?
+  heroMediaSrc  String?
+  heroMediaKind String? // image | video
+  bannerEnabled Boolean  @default(false)
+  bannerHtml    String   @default("")
+  bannerImg     String?
+  bannerLink    String   @default("")
+  learnPinOn    Boolean  @default(false)
+  learnPinTitle String   @default("")
+  learnPinDesc  String   @default("")
+  learnPinLink  String   @default("")
+  /// id закреплённой в промо трансляции; null = авто
+  homePromoId   String?
+  updatedAt     DateTime @updatedAt
+}
+
+/// Простые счётчики для раздела «Статистика».
+model Event {
+  id        String   @id @default(cuid())
+  kind      String // article_view | live_click | telemost_click | register | vote | chat_msg
+  refId     String?
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+}

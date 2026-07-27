@@ -1,40 +1,58 @@
+/* Дизайн-токены vibecast — из design_handoff README (переносить 1:1) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #e6e5dd;
+  --card: #ffffff;
+  --border: #deddd2;
+  --divider: #ecebe2;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+  --dark: #15160f;
+  --dark-deep: #0c0d08;
+  --dark-text: #f4f3ec;
+  --dark-text-2: #a9b29c;
+  --dark-border: #2a2b22;
 
-html {
-  height: 100%;
-}
+  --accent: #cbf54a;
+  --accent-alt: #e6ed02;
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+  --live: #e5402f;
+  --error: #ff7a6b;
+  --error-2: #c93a2b;
+  --success: #4f7f1f;
 
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --muted: #6b6c60;
+  --muted-2: #9a9b8e;
+
+  --field: #f4f3ec;
+
+  --r-card: 18px;
+  --r-card-lg: 26px;
+  --r-field: 12px;
+  --r-pill: 999px;
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
+}
+
+html,
+body {
   margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--dark);
+  font-family: Archivo, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
 }
 
 a {
@@ -42,8 +60,69 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+img,
+video {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+p {
+  margin: 0;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.vc-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.vc-scroll::-webkit-scrollbar-thumb {
+  background: #c5c4b8;
+  border-radius: 8px;
+}
+.vc-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes vc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.78);
+  }
+}
+
+@keyframes vc-fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--dark);
+  outline-offset: 2px;
 }

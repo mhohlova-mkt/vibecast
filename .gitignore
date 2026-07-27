@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local db & uploads
+*.db
+*.db-journal
+/public/uploads
+.env
+/generated
