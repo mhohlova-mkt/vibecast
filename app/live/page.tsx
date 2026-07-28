@@ -5,6 +5,9 @@ import { getViewer, isTelemostLink } from '@/lib/viewer'
 import Header from '@/components/portal/Header'
 import Footer from '@/components/portal/Footer'
 import EmailGate from '@/components/portal/EmailGate'
+import LivePoll from '@/components/portal/LivePoll'
+import LiveChat from '@/components/portal/LiveChat'
+import { prisma } from '@/lib/db'
 import styles from './live.module.css'
 
 export const metadata: Metadata = {
@@ -51,6 +54,24 @@ export default async function LivePage() {
   const recorded = broadcasts.filter((b) => b.status === 'recorded')
 
   const canWatch = viewer != null
+
+  // Голоса считаем здесь: на странице эфира их немного, отдельный запрос
+  // из компонента только добавил бы задержку.
+  const votes = live?.poll
+    ? await prisma.pollVote.findMany({
+        where: { broadcastId: live.id },
+        select: { optionIndex: true, email: true },
+      })
+    : []
+  const counts = live?.poll
+    ? live.poll.options.map(
+        (_, i) => votes.filter((v) => v.optionIndex === i).length,
+      )
+    : []
+  const myVote =
+    viewer != null
+      ? (votes.find((v) => v.email === viewer.email)?.optionIndex ?? null)
+      : null
   // Телемост встраивать нельзя — он это запрещает заголовками. Поэтому
   // плеер показываем только для площадок, которые встраивание разрешают.
   const embeddable = live?.embedUrl ?? null
@@ -148,7 +169,28 @@ export default async function LivePage() {
                   </div>
                 ) : null}
               </div>
+
+              {live.poll ? (
+                <LivePoll
+                  broadcastId={live.id}
+                  question={live.poll.question}
+                  options={live.poll.options}
+                  counts={counts}
+                  myVote={myVote}
+                  canVote={canWatch}
+                />
+              ) : null}
             </div>
+
+            {live.chat ? (
+              <div className={styles.chatCol}>
+                <LiveChat
+                  broadcastId={live.id}
+                  viewerName={viewer?.name ?? ''}
+                  canWrite={canWatch}
+                />
+              </div>
+            ) : null}
           </div>
         ) : (
           <section className={styles.noLive}>

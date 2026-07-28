@@ -60,7 +60,8 @@ model Broadcast {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  votes PollVote[]
+  votes    PollVote[]
+  messages ChatMessage[]
 }
 
 /// Голос в опросе — один на зрителя (по email).
@@ -173,4 +174,20 @@ model Submission {
   reviewedAt  DateTime?
 
   @@index([status, createdAt])
+}
+
+/// Сообщение в чате эфира. Автор опознаётся по почте зрителя —
+/// анонимный чат не делаем: модерировать некого, если банить некого.
+model ChatMessage {
+  id          String    @id @default(cuid())
+  broadcastId String
+  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  email       String
+  authorName  String
+  text        String
+  /// скрыто модератором — из ленты пропадает, в базе остаётся
+  hidden      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@index([broadcastId, createdAt])
 }

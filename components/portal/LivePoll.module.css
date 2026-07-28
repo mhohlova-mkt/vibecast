@@ -1,0 +1,118 @@
+/* Опрос под плеером. Тёмная карточка, как остальные блоки эфира. */
+
+.poll {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #15160f;
+  color: #f4f3ec;
+  border-radius: 22px;
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.kicker {
+  align-self: flex-start;
+  border: 1px solid #4a4b40;
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c7c6ba;
+}
+
+.question {
+  margin: 0;
+  font-size: clamp(18px, 2.4vw, 23px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.option,
+.optionMine {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  overflow: hidden;
+  width: 100%;
+  text-align: left;
+  border-radius: 13px;
+  padding: 13px 16px;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  background: #0c0d08;
+  border: 1px solid #2a2b22;
+  color: #f4f3ec;
+  transition: border-color 0.15s;
+}
+
+.option:hover:not(:disabled),
+.optionMine:hover:not(:disabled) {
+  border-color: #6b6c60;
+}
+
+.optionMine {
+  border-color: var(--accent, #cbf54a);
+}
+
+.option:disabled,
+.optionMine:disabled {
+  cursor: default;
+}
+
+/* Заливка доли — под текстом, поэтому текст поднят z-index'ом. */
+.bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgba(203, 245, 74, 0.18);
+  transition: width 0.4s cubic-bezier(0.33, 1, 0.4, 1);
+}
+
+.optionMine .bar {
+  background: rgba(203, 245, 74, 0.32);
+}
+
+.optionText,
+.share {
+  position: relative;
+  z-index: 1;
+}
+
+.share {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #cbf54a);
+  flex-shrink: 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.total {
+  font-size: 13px;
+  color: #a9b29c;
+}
+
+.error {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff7a6b;
+}
