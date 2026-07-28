@@ -19,6 +19,7 @@ export type HomeDraft = {
   bannerImg: string | null
   bannerLink: string
   learnPinOn: boolean
+  learnPinImg: string | null
   learnPinTitle: string
   learnPinDesc: string
   learnPinLink: string
@@ -70,6 +71,7 @@ export default function HomeEditor({
   )
   const [bannerImg, setBannerImg] = useState(draft.bannerImg ?? '')
   const [learnOn, setLearnOn] = useState(draft.learnPinOn)
+  const [learnImg, setLearnImg] = useState(draft.learnPinImg ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -102,6 +104,7 @@ export default function HomeEditor({
       <input type="hidden" name="bannerEnabled" value={bannerOn ? 'true' : ''} />
       <input type="hidden" name="bannerImg" value={bannerImg} />
       <input type="hidden" name="learnPinOn" value={learnOn ? 'true' : ''} />
+      <input type="hidden" name="learnPinImg" value={learnImg} />
 
       {/* ─── Закреплённая статья ─── */}
       <section style={card}>
@@ -125,14 +128,28 @@ export default function HomeEditor({
                   alignItems: 'center',
                   gap: 12,
                   textAlign: 'left',
-                  border: on ? '1.5px solid var(--dark)' : '1px solid var(--line)',
-                  background: on ? '#F4F7EC' : 'transparent',
+                  border: on ? '1.5px solid var(--dark)' : '1.5px solid #D8D7CB',
+                  background: on ? '#F4F7EC' : '#FCFCF9',
                   borderRadius: 12,
                   padding: '11px 14px',
                   cursor: 'pointer',
                   font: 'inherit',
                 }}
               >
+                {/* Кружок-переключатель: без него строки читаются как текст,
+                    и непонятно, что по ним можно кликать. */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    flexShrink: 0,
+                    border: on ? '5px solid var(--dark)' : '2px solid #B9B8AC',
+                    background: '#fff',
+                  }}
+                />
+
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', fontWeight: 600, fontSize: 15 }}>
                     {a.title}
@@ -170,78 +187,103 @@ export default function HomeEditor({
       <section style={card}>
         <span style={label}>Медиа главного блока</span>
 
-        {heroMedia ? (
-          heroKind === 'video' ? (
-            <video
-              src={heroMedia}
-              style={{ width: '100%', borderRadius: 14, maxHeight: 260 }}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={heroMedia}
-              alt=""
-              style={{ width: '100%', borderRadius: 14, maxHeight: 260, objectFit: 'cover' }}
-            />
-          )
-        ) : (
+        {/* Превью — маленькое, сбоку; занимать полосу во всю ширину незачем. */}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <div
             style={{
-              height: 110,
-              borderRadius: 14,
-              border: '1.5px dashed #C9C8BC',
+              width: 190,
+              aspectRatio: '16 / 10',
+              flexShrink: 0,
+              borderRadius: 12,
+              overflow: 'hidden',
+              border: heroMedia ? '1px solid var(--line)' : '1.5px dashed #C9C8BC',
+              background: '#F4F3EC',
               display: 'grid',
               placeItems: 'center',
-              color: 'var(--muted)',
-              fontSize: 13,
             }}
           >
-            Не загружено — используется обложка статьи
+            {heroMedia ? (
+              heroKind === 'video' ? (
+                <video
+                  src={heroMedia}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={heroMedia}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              )
+            ) : (
+              <span
+                style={{
+                  fontSize: 12,
+                  color: 'var(--muted)',
+                  textAlign: 'center',
+                  padding: '0 12px',
+                  lineHeight: 1.4,
+                }}
+              >
+                Обложка статьи
+              </span>
+            )}
           </div>
-        )}
 
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            type="file"
-            accept="image/*,video/mp4,video/webm"
-            style={{ fontSize: 13 }}
-            onChange={async (e) => {
-              const f = e.target.files?.[0]
-              if (!f) return
-              const up = await upload(f)
-              if (up) {
-                setHeroMedia(up.src)
-                setHeroKind(up.kind)
-              }
+          <div
+            style={{
+              flex: 1,
+              minWidth: 220,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              alignItems: 'flex-start',
             }}
-          />
-          {heroMedia ? (
-            <button
-              type="button"
-              onClick={() => {
-                setHeroMedia('')
-                setHeroKind('')
+          >
+            <input
+              type="file"
+              accept="image/*,video/mp4,video/webm"
+              style={{ fontSize: 13 }}
+              onChange={async (e) => {
+                const f = e.target.files?.[0]
+                if (!f) return
+                const up = await upload(f)
+                if (up) {
+                  setHeroMedia(up.src)
+                  setHeroKind(up.kind)
+                }
               }}
-              style={{
-                border: '1px solid var(--line)',
-                background: 'transparent',
-                borderRadius: 'var(--r-pill)',
-                padding: '8px 16px',
-                fontSize: 13,
-                cursor: 'pointer',
-              }}
-            >
-              Вернуть обложку статьи
-            </button>
-          ) : null}
+            />
+            {heroMedia ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setHeroMedia('')
+                  setHeroKind('')
+                }}
+                style={{
+                  border: '1px solid var(--line)',
+                  background: 'transparent',
+                  borderRadius: 'var(--r-pill)',
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                Вернуть обложку статьи
+              </button>
+            ) : null}
+            <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+              Фото или GIF до 8 МБ, видео MP4 или WebM до 12 МБ. Видео идёт без
+              звука. Если ничего не загружено, берётся обложка закреплённой статьи.
+            </span>
+          </div>
         </div>
-        <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-          Фото или GIF до 8 МБ, видео MP4 или WebM до 12 МБ. Видео идёт без звука.
-        </span>
       </section>
 
       {/* ─── Рекламный баннер ─── */}
@@ -287,88 +329,113 @@ export default function HomeEditor({
                 {/* HTML не нужен — гасим его, иначе он перебьёт медиа. */}
                 <input type="hidden" name="bannerHtml" value="" />
 
-                <div
-                  style={{
-                    height: 110,
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    border: '1px solid var(--line)',
-                    background: '#fff',
-                    display: 'grid',
-                    placeItems: 'center',
-                  }}
-                >
-                  {bannerImg ? (
-                    isVideo(bannerImg) ? (
-                      <video
-                        src={bannerImg}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                      />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={bannerImg}
-                        alt=""
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    )
-                  ) : (
-                    <span className="mono" style={{ fontSize: 11, color: 'var(--muted)' }}>
-                      МЕСТО ПОД БАННЕР
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <input
-                    type="file"
-                    accept="image/*,video/mp4,video/webm"
-                    style={{ fontSize: 13 }}
-                    onChange={async (e) => {
-                      const f = e.target.files?.[0]
-                      if (!f) return
-                      const up = await upload(f)
-                      if (up) setBannerImg(up.src)
-                    }}
-                  />
-                  {bannerImg ? (
-                    <button
-                      type="button"
-                      onClick={() => setBannerImg('')}
+                {/* Превью ровно того размера, каким баннер будет на сайте:
+                    380×110. Растянутое на всю ширину врало бы про кадрирование. */}
+                <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <div style={{ flexShrink: 0 }}>
+                    <div
                       style={{
+                        width: 380,
+                        height: 110,
+                        maxWidth: '100%',
+                        borderRadius: 20,
+                        overflow: 'hidden',
                         border: '1px solid var(--line)',
-                        background: 'transparent',
-                        borderRadius: 'var(--r-pill)',
-                        padding: '8px 16px',
-                        fontSize: 13,
-                        cursor: 'pointer',
+                        background: '#fff',
+                        display: 'grid',
+                        placeItems: 'center',
                       }}
                     >
-                      Убрать
-                    </button>
-                  ) : null}
+                      {bannerImg ? (
+                        isVideo(bannerImg) ? (
+                          <video
+                            src={bannerImg}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                          />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={bannerImg}
+                            alt=""
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        )
+                      ) : (
+                        <span className="mono" style={{ fontSize: 11, color: 'var(--muted)' }}>
+                          МЕСТО ПОД БАННЕР
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      style={{
+                        display: 'block',
+                        marginTop: 6,
+                        fontSize: 11.5,
+                        color: 'var(--muted)',
+                      }}
+                    >
+                      Так это выглядит на сайте
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 220,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*,video/mp4,video/webm"
+                      style={{ fontSize: 13 }}
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        const up = await upload(f)
+                        if (up) setBannerImg(up.src)
+                      }}
+                    />
+                    {bannerImg ? (
+                      <button
+                        type="button"
+                        onClick={() => setBannerImg('')}
+                        style={{
+                          border: '1px solid var(--line)',
+                          background: 'transparent',
+                          borderRadius: 'var(--r-pill)',
+                          padding: '8px 16px',
+                          fontSize: 13,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Убрать
+                      </button>
+                    ) : null}
+                    <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+                      Пропорция примерно 3,5 к 1, лучше всего файл 1200×340.
+                      Видео проигрывается само, по кругу и без звука.
+                    </span>
+
+                    <label style={{ ...label, marginTop: 4 }} htmlFor="bannerLink">
+                      Ссылка по клику
+                    </label>
+                    <input
+                      id="bannerLink"
+                      name="bannerLink"
+                      defaultValue={draft.bannerLink}
+                      placeholder="https://..."
+                      style={field}
+                    />
+                  </div>
                 </div>
-
-                <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-                  Баннер узкий: 110 пикселей в высоту, пропорция примерно 3,5 к 1.
-                  Лучше всего подходит файл 1200×340. Видео проигрывается само,
-                  по кругу и без звука.
-                </span>
-
-                <label style={label} htmlFor="bannerLink">
-                  Ссылка по клику
-                </label>
-                <input
-                  id="bannerLink"
-                  name="bannerLink"
-                  defaultValue={draft.bannerLink}
-                  placeholder="https://..."
-                  style={field}
-                />
               </>
             ) : (
               <>
@@ -422,6 +489,93 @@ export default function HomeEditor({
 
         {learnOn ? (
           <>
+            {/* Белая часть блока — под логотип партнёра. */}
+            <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ flexShrink: 0 }}>
+                <div
+                  style={{
+                    width: 200,
+                    height: 120,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    border: '1px solid var(--line)',
+                    background: '#fff',
+                    display: 'grid',
+                    placeItems: 'center',
+                    padding: 16,
+                  }}
+                >
+                  {learnImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={learnImg}
+                      alt=""
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <span
+                      style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}
+                    >
+                      Логотип по умолчанию
+                    </span>
+                  )}
+                </div>
+                <span
+                  style={{
+                    display: 'block',
+                    marginTop: 6,
+                    fontSize: 11.5,
+                    color: 'var(--muted)',
+                  }}
+                >
+                  Так это выглядит на сайте
+                </span>
+              </div>
+
+              <div
+                style={{
+                  flex: 1,
+                  minWidth: 220,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  alignItems: 'flex-start',
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ fontSize: 13 }}
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0]
+                    if (!f) return
+                    const up = await upload(f)
+                    if (up) setLearnImg(up.src)
+                  }}
+                />
+                {learnImg ? (
+                  <button
+                    type="button"
+                    onClick={() => setLearnImg('')}
+                    style={{
+                      border: '1px solid var(--line)',
+                      background: 'transparent',
+                      borderRadius: 'var(--r-pill)',
+                      padding: '8px 16px',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Убрать
+                  </button>
+                ) : null}
+                <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+                  Логотип на белом фоне, PNG с прозрачностью. Вписывается целиком,
+                  не обрезается.
+                </span>
+              </div>
+            </div>
+
             <input
               name="learnPinTitle"
               defaultValue={draft.learnPinTitle}

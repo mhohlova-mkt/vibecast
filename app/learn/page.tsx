@@ -68,8 +68,8 @@ export default async function LearnPage() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/uploads/edme-logo-full.png"
-                alt="EdMe"
+                src={pin.img?.trim() || '/uploads/edme-logo-full.png'}
+                alt=""
                 style={{ width: 'min(72%,220px)', height: 'auto', display: 'block' }}
               />
             </div>

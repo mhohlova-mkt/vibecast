@@ -76,6 +76,7 @@ export default async function AdminHome() {
           bannerImg: home?.bannerImg ?? null,
           bannerLink: home?.bannerLink ?? '',
           learnPinOn: home?.learnPinOn ?? false,
+          learnPinImg: home?.learnPinImg ?? null,
           learnPinTitle: home?.learnPinTitle ?? '',
           learnPinDesc: home?.learnPinDesc ?? '',
           learnPinLink: home?.learnPinLink ?? '',

@@ -131,6 +131,8 @@ model Home {
   bannerImg     String?
   bannerLink    String   @default("")
   learnPinOn    Boolean  @default(false)
+  /// Логотип или картинка в белой части закрепа; null = логотип по умолчанию
+  learnPinImg   String?
   learnPinTitle String   @default("")
   learnPinDesc  String   @default("")
   learnPinLink  String   @default("")

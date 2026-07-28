@@ -185,6 +185,7 @@ export async function saveHome(fd: FormData) {
     bannerImg: str(fd, 'bannerImg') || null,
     bannerLink: str(fd, 'bannerLink'),
     learnPinOn: bool(fd, 'learnPinOn'),
+    learnPinImg: str(fd, 'learnPinImg') || null,
     learnPinTitle: str(fd, 'learnPinTitle'),
     learnPinDesc: str(fd, 'learnPinDesc'),
     learnPinLink: str(fd, 'learnPinLink'),

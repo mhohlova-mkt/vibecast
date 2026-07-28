@@ -50,7 +50,13 @@ export type HomeView = {
   heroMediaSrc: string | null
   heroMediaKind: 'image' | 'video' | null
   banner: { enabled: boolean; html: string; img: string | null; link: string }
-  learnPin: { enabled: boolean; title: string; desc: string; link: string }
+  learnPin: {
+    enabled: boolean
+    img: string | null
+    title: string
+    desc: string
+    link: string
+  }
   homePromoId: string | null
 }
 
@@ -207,6 +213,7 @@ export async function getHome(): Promise<HomeView> {
     },
     learnPin: {
       enabled: h?.learnPinOn ?? false,
+      img: h?.learnPinImg ?? null,
       title: h?.learnPinTitle ?? '',
       desc: h?.learnPinDesc ?? '',
       link: h?.learnPinLink ?? '',
