@@ -18,14 +18,6 @@ type Params = { params: Promise<{ id: string }> }
 /** Дефолт пропорций обложки из прототипа. */
 const DEFAULT_RATIO = '1685/1000'
 
-/** «сегодня · vibecast» из прототипа; при наличии даты публикации — она. */
-const dateFmt = new Intl.DateTimeFormat('ru-RU', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'Europe/Moscow',
-})
-
 function catBg(bg: string): string {
   return bg === 'accent' ? 'var(--accent, #CBF54A)' : bg
 }
@@ -66,9 +58,9 @@ export default async function ArticlePage({ params }: Params) {
 
   const liveNow = broadcasts.some((b) => b.status === 'live')
   const cover = (article.coverSrc || '').trim()
-  const stamp = article.publishedAt
-    ? dateFmt.format(new Date(article.publishedAt))
-    : 'сегодня'
+  // publishedAt приходит уже готовой подписью («сегодня», «2 июл») —
+  // разбирать его как дату нельзя, страница на этом падала.
+  const stamp = article.publishedAt ?? 'сегодня'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

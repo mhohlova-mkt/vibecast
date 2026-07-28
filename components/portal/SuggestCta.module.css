@@ -1,0 +1,72 @@
+/* Блок «предложить новость» в конце ленты. Тёмный, как секция вебинаров. */
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 48px);
+  flex-wrap: wrap;
+  background: #15160f;
+  color: #f4f3ec;
+  border-radius: clamp(22px, 3vw, 30px);
+  padding: clamp(26px, 4vw, 44px) clamp(22px, 4vw, 44px);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.kicker {
+  align-self: flex-start;
+  border: 1px solid #4a4b40;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c7c6ba;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(24px, 3.6vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.desc {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: #a9b29c;
+  max-width: 52ch;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  background: var(--accent, #cbf54a);
+  color: #15160f;
+  font-weight: 800;
+  font-size: 15.5px;
+  letter-spacing: -0.01em;
+  padding: 16px 28px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -18px rgba(203, 245, 74, 0.7);
+}

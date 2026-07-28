@@ -11,6 +11,7 @@ import Hero from '@/components/portal/Hero'
 import LivePromo from '@/components/portal/LivePromo'
 import Banner from '@/components/portal/Banner'
 import ArticleCard from '@/components/portal/ArticleCard'
+import SuggestCta from '@/components/portal/SuggestCta'
 import styles from './home.module.css'
 
 // Контентом управляет админка — страницы обязаны рендериться на каждый
@@ -73,6 +74,10 @@ export default async function Home() {
               Пока нет опубликованных материалов. Добавьте статью в админке.
             </p>
           )}
+        </section>
+
+        <section className={styles.ctaSection}>
+          <SuggestCta />
         </section>
       </main>
 
