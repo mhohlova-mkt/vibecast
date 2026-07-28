@@ -166,3 +166,67 @@
   font-size: 13.5px;
   color: #a9b29c;
 }
+
+/* ── Эмодзи ── */
+
+.emojiPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #0c0d08;
+  border: 1px solid #2a2b22;
+  border-radius: 14px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.emojiGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emojiTitle {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b6c60;
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  gap: 4px;
+}
+
+.emoji {
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 19px;
+  line-height: 1;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.emoji:hover {
+  background: #2a2b22;
+}
+
+.emojiToggle,
+.emojiToggleOn {
+  flex-shrink: 0;
+  width: 40px;
+  border: 1px solid #2a2b22;
+  border-radius: 12px;
+  background: #0c0d08;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.emojiToggleOn {
+  border-color: var(--accent, #cbf54a);
+}

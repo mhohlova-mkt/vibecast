@@ -17,6 +17,28 @@ type Message = {
 const POLL_MS = 4000
 const MAX_TEXT = 300
 
+/**
+ * Набор для чата вебинара: живые реакции и рабочая лексика айтишников.
+ * Держим коротким намеренно — в длинной сетке никто не ищет, а панель
+ * начинает занимать пол-экрана на телефоне.
+ */
+const EMOJI: { title: string; items: string[] }[] = [
+  {
+    title: 'Реакции',
+    items: [
+      '👍', '👎', '🔥', '❤️', '😂', '🙂', '😮', '🤯',
+      '🤔', '😢', '🙏', '👏', '🎉', '💯', '👀', '🤝',
+    ],
+  },
+  {
+    title: 'Про работу',
+    items: [
+      '💻', '⌨️', '🐛', '🚀', '⚙️', '🔧', '📦', '🤖',
+      '🧠', '☁️', '🔒', '📈', '⏱', '✅', '❌', '🧩',
+    ],
+  },
+]
+
 export default function LiveChat({
   broadcastId,
   viewerName,
@@ -35,6 +57,8 @@ export default function LiveChat({
   const [name, setName] = useState(viewerName)
   const [text, setText] = useState('')
   const listRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [emojiOpen, setEmojiOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   const load = useCallback(async () => {
@@ -64,6 +88,25 @@ export default function LiveChat({
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
     if (nearBottom) el.scrollTop = el.scrollHeight
   }, [messages])
+
+  /** Вставляем в место, где стоит курсор, а не в конец строки. */
+  function insertEmoji(symbol: string) {
+    const el = inputRef.current
+    if (!el) {
+      setText((t) => (t + symbol).slice(0, MAX_TEXT))
+      return
+    }
+    const start = el.selectionStart ?? text.length
+    const end = el.selectionEnd ?? text.length
+    const next = (text.slice(0, start) + symbol + text.slice(end)).slice(0, MAX_TEXT)
+    setText(next)
+    // Курсор должен оказаться после вставленного символа.
+    requestAnimationFrame(() => {
+      el.focus()
+      const pos = Math.min(start + symbol.length, next.length)
+      el.setSelectionRange(pos, pos)
+    })
+  }
 
   const needName = !name.trim()
 
@@ -109,6 +152,7 @@ export default function LiveChat({
           action={async (fd) => {
             await action(fd)
             setText('')
+            setEmojiOpen(false)
             void load()
           }}
           className={styles.form}
@@ -129,8 +173,41 @@ export default function LiveChat({
             <input type="hidden" name="authorName" value={name} />
           )}
 
+          {emojiOpen ? (
+            <div className={styles.emojiPanel}>
+              {EMOJI.map((group) => (
+                <div key={group.title} className={styles.emojiGroup}>
+                  <span className={`mono ${styles.emojiTitle}`}>{group.title}</span>
+                  <div className={styles.emojiGrid}>
+                    {group.items.map((symbol) => (
+                      <button
+                        key={symbol}
+                        type="button"
+                        className={styles.emoji}
+                        onClick={() => insertEmoji(symbol)}
+                        aria-label={`Вставить ${symbol}`}
+                      >
+                        {symbol}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           <div className={styles.row}>
+            <button
+              type="button"
+              className={emojiOpen ? styles.emojiToggleOn : styles.emojiToggle}
+              onClick={() => setEmojiOpen((v) => !v)}
+              aria-label="Эмодзи"
+              aria-expanded={emojiOpen}
+            >
+              🙂
+            </button>
             <input
+              ref={inputRef}
               name="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
