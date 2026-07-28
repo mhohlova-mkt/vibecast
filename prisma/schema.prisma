@@ -46,6 +46,9 @@ model Broadcast {
   time          String   @default("") // HH:MM
   status        String   @default("draft")
   link          String   @default("") // https://telemost.yandex.ru/j/…
+  /// Ссылка на встраиваемый плеер (VK Видео, Rutube). Телемост сюда не
+  /// годится: он запрещает встраивание заголовками, для него только link.
+  embedUrl      String?
   embed         Boolean  @default(false)
   chat          Boolean  @default(false)
   pollQuestion  String?

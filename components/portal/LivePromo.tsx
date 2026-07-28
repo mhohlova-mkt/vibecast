@@ -57,6 +57,14 @@ function formatWhen(date: string, time: string): string {
   return `${day} ${month}${time ? `, ${time}` : ''}`
 }
 
+/** Плеер в миниатюре должен стартовать сам и молча. */
+function withAutoplay(url: string): string {
+  const u = new URL(url)
+  u.searchParams.set('autoplay', '1')
+  u.searchParams.set('muted', '1')
+  return u.toString()
+}
+
 export default function LivePromo({ promo }: { promo: BroadcastView | null }) {
   if (!promo) return null
 
@@ -79,14 +87,28 @@ export default function LivePromo({ promo }: { promo: BroadcastView | null }) {
         )}
 
         <div className={styles.frame}>
+          {/* Если площадка разрешает встраивание — показываем живой эфир
+              прямо в миниатюре. Без звука: со звуком браузер не пустит. */}
+          {isLive && promo.embedUrl ? (
+            <iframe
+              className={styles.liveFrame}
+              src={withAutoplay(promo.embedUrl)}
+              title={promo.title}
+              allow="autoplay; encrypted-media; picture-in-picture"
+              loading="lazy"
+            />
+          ) : null}
+
           {isLive ? (
             <>
               <span className={`mono ${styles.liveChip}`}>LIVE</span>
-              <span className={styles.playMark} aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="#15160F">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </span>
+              {promo.embedUrl ? null : (
+                <span className={styles.playMark} aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="#15160F">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              )}
             </>
           ) : (
             <div className={styles.soon}>

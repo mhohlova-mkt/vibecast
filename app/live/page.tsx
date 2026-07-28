@@ -51,7 +51,9 @@ export default async function LivePage() {
   const recorded = broadcasts.filter((b) => b.status === 'recorded')
 
   const canWatch = viewer != null
-  const embeddable = live != null && live.embed && isTelemostLink(live.link)
+  // Телемост встраивать нельзя — он это запрещает заголовками. Поэтому
+  // плеер показываем только для площадок, которые встраивание разрешают.
+  const embeddable = live?.embedUrl ?? null
 
   return (
     <div className={styles.page}>
@@ -81,7 +83,7 @@ export default async function LivePage() {
                 {canWatch && embeddable ? (
                   <iframe
                     className={styles.frame}
-                    src={live.link}
+                    src={embeddable}
                     title={live.title}
                     allow="camera; microphone; fullscreen; display-capture; autoplay"
                     allowFullScreen

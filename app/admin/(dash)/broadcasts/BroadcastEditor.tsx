@@ -15,6 +15,7 @@ export type BroadcastDraft = {
   time: string
   status: string
   link: string
+  embedUrl: string | null
   embed: boolean
   chat: boolean
   pollQuestion: string
@@ -64,7 +65,7 @@ const label: React.CSSProperties = {
 export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
   const [status, setStatus] = useState(draft.status || 'draft')
   const [link, setLink] = useState(draft.link)
-  const [embed, setEmbed] = useState(draft.embed)
+  const [embedUrl, setEmbedUrl] = useState(draft.embedUrl ?? '')
   const [chat, setChat] = useState(draft.chat)
   const [avatar, setAvatar] = useState(draft.speakerAvatar ?? '')
   const [pollOn, setPollOn] = useState(draft.pollOptions.length >= 2)
@@ -99,7 +100,6 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
       {draft.id ? <input type="hidden" name="id" value={draft.id} /> : null}
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="speakerAvatar" value={avatar} />
-      <input type="hidden" name="embed" value={embed ? 'true' : ''} />
       <input type="hidden" name="chat" value={chat ? 'true' : ''} />
 
       {/* ─── О чём эфир ─── */}
@@ -328,19 +328,34 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
           ) : null}
         </div>
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={embed}
-            onChange={(e) => setEmbed(e.target.checked)}
-            style={{ width: 16, height: 16, accentColor: '#15160F' }}
-          />
-          <span style={{ fontSize: 14 }}>Встроить плеер прямо в страницу</span>
-        </label>
         <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
-          Если Телемост запретит встраивание, портал сам покажет кнопку
-          «Открыть в Телемосте» — эфир не сломается.
+          Телемост нельзя показать внутри сайта — он это запрещает. Зрители
+          уйдут на него по кнопке. Чтобы эфир шёл прямо на странице, добавьте
+          ниже трансляцию с площадки, которая встраивание разрешает.
         </span>
+      </section>
+
+      {/* ─── Плеер на сайте ─── */}
+      <section style={card}>
+        <span style={label}>Эфир прямо на сайте</span>
+        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 }}>
+          Вставьте ссылку или «код для вставки» с VK Видео либо Rutube. Тогда
+          эфир будет виден в плеере на странице и живой картинкой в блоке на
+          главной. Код можно вставлять целиком — адрес выну сам.
+        </p>
+        <textarea
+          name="embedUrl"
+          value={embedUrl}
+          onChange={(e) => setEmbedUrl(e.target.value)}
+          rows={3}
+          placeholder={'<iframe src="https://vkvideo.ru/video_ext.php?oid=-123&id=456..." ...></iframe>'}
+          style={{
+            ...field,
+            fontFamily: 'var(--font-mono), monospace',
+            fontSize: 12.5,
+            resize: 'vertical',
+          }}
+        />
 
         {status === 'recorded' ? (
           <>

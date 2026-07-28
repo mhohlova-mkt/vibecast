@@ -37,6 +37,7 @@ export type BroadcastView = {
   time: string
   status: 'draft' | 'scheduled' | 'live' | 'recorded'
   link: string
+  embedUrl: string | null
   embed: boolean
   chat: boolean
   poll: { question: string; options: string[] } | null
@@ -138,6 +139,7 @@ function toBroadcast(b: {
   time: string
   status: string
   link: string
+  embedUrl: string | null
   embed: boolean
   chat: boolean
   pollQuestion: string | null
@@ -162,6 +164,7 @@ function toBroadcast(b: {
     time: b.time,
     status: b.status as BroadcastView['status'],
     link: b.link,
+    embedUrl: b.embedUrl,
     embed: b.embed,
     chat: b.chat,
     poll:

@@ -58,6 +58,7 @@ export default async function EditBroadcastPage({
           time: b.time,
           status: b.status,
           link: b.link,
+          embedUrl: b.embedUrl,
           embed: b.embed,
           chat: b.chat,
           pollQuestion: b.pollQuestion ?? '',

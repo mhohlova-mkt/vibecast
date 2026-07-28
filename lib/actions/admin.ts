@@ -7,6 +7,23 @@ import { requireUser, hashPassword } from '@/lib/auth'
 
 const TELEMOST = /^https:\/\/telemost\.yandex\.ru\//
 
+/** Разрешённые площадки для встраивания — только те, что это позволяют. */
+const EMBEDDABLE = /^https:\/\/(vkvideo\.ru|vk\.com|rutube\.ru)\//
+
+/**
+ * Из админки удобнее вставлять целиком «код для вставки» — вытаскиваем
+ * из него адрес сам, чтобы не заставлять редакцию ковыряться в разметке.
+ */
+function extractEmbedUrl(raw: string): string {
+  const value = raw.trim()
+  if (!value) return ''
+  const fromIframe = /<iframe[^>]+src=["']([^"']+)["']/i.exec(value)
+  const url = (fromIframe?.[1] ?? value).trim()
+  if (!EMBEDDABLE.test(url))
+    throw new Error('Поддерживаются ссылки VK Видео и Rutube — Телемост встраивать нельзя')
+  return url
+}
+
 /** Обновляем и админку, и затронутые страницы портала. */
 function refresh(...paths: string[]) {
   for (const p of ['/', ...paths]) revalidatePath(p)
@@ -43,6 +60,7 @@ export async function saveBroadcast(fd: FormData) {
     time: str(fd, 'time'),
     status: str(fd, 'status') || 'draft',
     link,
+    embedUrl: extractEmbedUrl(str(fd, 'embedUrl')) || null,
     embed: bool(fd, 'embed'),
     chat: bool(fd, 'chat'),
     pollQuestion: question && options.length >= 2 ? question : null,
