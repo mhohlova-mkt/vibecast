@@ -4,25 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireUser, hashPassword } from '@/lib/auth'
+import { normalizeEmbedUrl } from '@/lib/embed'
 
 const TELEMOST = /^https:\/\/telemost\.yandex\.ru\//
-
-/** Разрешённые площадки для встраивания — только те, что это позволяют. */
-const EMBEDDABLE = /^https:\/\/(vkvideo\.ru|vk\.com|rutube\.ru)\//
-
-/**
- * Из админки удобнее вставлять целиком «код для вставки» — вытаскиваем
- * из него адрес сам, чтобы не заставлять редакцию ковыряться в разметке.
- */
-function extractEmbedUrl(raw: string): string {
-  const value = raw.trim()
-  if (!value) return ''
-  const fromIframe = /<iframe[^>]+src=["']([^"']+)["']/i.exec(value)
-  const url = (fromIframe?.[1] ?? value).trim()
-  if (!EMBEDDABLE.test(url))
-    throw new Error('Поддерживаются ссылки VK Видео и Rutube — Телемост встраивать нельзя')
-  return url
-}
 
 /** Обновляем и админку, и затронутые страницы портала. */
 function refresh(...paths: string[]) {
@@ -46,6 +30,11 @@ export async function saveBroadcast(fd: FormData) {
   if (link && !TELEMOST.test(link))
     throw new Error('Ссылка должна начинаться с https://telemost.yandex.ru/')
 
+  // Из админки прилетает что угодно — приводим к адресу плеера.
+  const embed = normalizeEmbedUrl(str(fd, 'embedUrl'))
+  if (embed.error) throw new Error(embed.error)
+  const embedUrl = embed.url ?? ''
+
   const options = (fd.getAll('pollOption') as string[])
     .map((o) => o.trim())
     .filter(Boolean)
@@ -60,7 +49,7 @@ export async function saveBroadcast(fd: FormData) {
     time: str(fd, 'time'),
     status: str(fd, 'status') || 'draft',
     link,
-    embedUrl: extractEmbedUrl(str(fd, 'embedUrl')) || null,
+    embedUrl: embedUrl || null,
     embed: bool(fd, 'embed'),
     chat: bool(fd, 'chat'),
     pollQuestion: question && options.length >= 2 ? question : null,

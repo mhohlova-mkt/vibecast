@@ -339,16 +339,16 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
       <section style={card}>
         <span style={label}>Эфир прямо на сайте</span>
         <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 }}>
-          Вставьте ссылку или «код для вставки» с VK Видео либо Rutube. Тогда
-          эфир будет виден в плеере на странице и живой картинкой в блоке на
-          главной. Код можно вставлять целиком — адрес выну сам.
+          Вставьте ссылку на видео или трансляцию с VK Видео либо Rutube —
+          подойдёт и обычный адрес страницы, и «код для вставки». Адрес плеера
+          я соберу сам, чтобы в окно не залез интерфейс площадки.
         </p>
         <textarea
           name="embedUrl"
           value={embedUrl}
           onChange={(e) => setEmbedUrl(e.target.value)}
           rows={3}
-          placeholder={'<iframe src="https://vkvideo.ru/video_ext.php?oid=-123&id=456..." ...></iframe>'}
+          placeholder={'https://vkvideo.ru/video-227249474_456239018'}
           style={{
             ...field,
             fontFamily: 'var(--font-mono), monospace',

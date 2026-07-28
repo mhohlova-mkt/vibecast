@@ -1,5 +1,6 @@
 import 'server-only'
 import { prisma } from './db'
+import { normalizeEmbedUrl } from './embed'
 
 /** Единый контракт данных для всех экранов портала. */
 
@@ -164,7 +165,8 @@ function toBroadcast(b: {
     time: b.time,
     status: b.status as BroadcastView['status'],
     link: b.link,
-    embedUrl: b.embedUrl,
+    // Ссылки, сохранённые до нормализации, приводим на чтении.
+    embedUrl: b.embedUrl ? (normalizeEmbedUrl(b.embedUrl).url ?? null) : null,
     embed: b.embed,
     chat: b.chat,
     poll:
