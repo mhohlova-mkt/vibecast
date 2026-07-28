@@ -86,7 +86,14 @@ export default function LivePromo({ promo }: { promo: BroadcastView | null }) {
           </span>
         )}
 
-        <div className={styles.frame}>
+        <div
+          className={styles.frame}
+          style={
+            promo.posterSrc && !(isLive && promo.embedUrl)
+              ? { backgroundImage: `url("${promo.posterSrc}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : undefined
+          }
+        >
           {/* Если площадка разрешает встраивание — показываем живой эфир
               прямо в миниатюре. Без звука: со звуком браузер не пустит. */}
           {isLive && promo.embedUrl ? (
@@ -111,7 +118,7 @@ export default function LivePromo({ promo }: { promo: BroadcastView | null }) {
               )}
             </>
           ) : (
-            <div className={styles.soon}>
+            <div className={promo.posterSrc ? styles.soonOnPoster : styles.soon}>
               <span className={styles.soonMark} aria-hidden="true">
                 <svg
                   width="20"

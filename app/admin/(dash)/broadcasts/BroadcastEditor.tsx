@@ -16,6 +16,7 @@ export type BroadcastDraft = {
   status: string
   link: string
   embedUrl: string | null
+  posterSrc: string | null
   embed: boolean
   chat: boolean
   pollQuestion: string
@@ -66,6 +67,7 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
   const [status, setStatus] = useState(draft.status || 'draft')
   const [link, setLink] = useState(draft.link)
   const [embedUrl, setEmbedUrl] = useState(draft.embedUrl ?? '')
+  const [poster, setPoster] = useState(draft.posterSrc ?? '')
   const [chat, setChat] = useState(draft.chat)
   const [avatar, setAvatar] = useState(draft.speakerAvatar ?? '')
   const [pollOn, setPollOn] = useState(draft.pollOptions.length >= 2)
@@ -78,7 +80,7 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
   const linkOk = TELEMOST.test(link.trim())
   const linkFilled = link.trim().length > 0
 
-  async function uploadAvatar(file: File) {
+  async function upload(file: File, apply: (src: string) => void) {
     setBusy(true)
     setError(null)
     try {
@@ -87,7 +89,7 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Не удалось загрузить файл')
-      setAvatar(data.src as string)
+      apply(data.src as string)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Ошибка загрузки')
     } finally {
@@ -100,6 +102,7 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
       {draft.id ? <input type="hidden" name="id" value={draft.id} /> : null}
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="speakerAvatar" value={avatar} />
+      <input type="hidden" name="posterSrc" value={poster} />
       <input type="hidden" name="chat" value={chat ? 'true' : ''} />
 
       {/* ─── О чём эфир ─── */}
@@ -244,7 +247,7 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
                 style={{ fontSize: 13 }}
                 onChange={(e) => {
                   const f = e.target.files?.[0]
-                  if (f) void uploadAvatar(f)
+                  if (f) void upload(f, setAvatar)
                 }}
               />
               {avatar ? (

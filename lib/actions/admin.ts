@@ -50,6 +50,7 @@ export async function saveBroadcast(fd: FormData) {
     status: str(fd, 'status') || 'draft',
     link,
     embedUrl: embedUrl || null,
+    posterSrc: str(fd, 'posterSrc') || null,
     embed: bool(fd, 'embed'),
     chat: bool(fd, 'chat'),
     pollQuestion: question && options.length >= 2 ? question : null,

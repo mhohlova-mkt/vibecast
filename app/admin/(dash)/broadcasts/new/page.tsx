@@ -42,6 +42,7 @@ export default function NewBroadcastPage() {
           status: 'draft',
           link: '',
           embedUrl: null,
+          posterSrc: null,
           embed: false,
           chat: false,
           pollQuestion: '',

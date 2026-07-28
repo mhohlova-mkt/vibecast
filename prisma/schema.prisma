@@ -49,6 +49,9 @@ model Broadcast {
   /// Ссылка на встраиваемый плеер (VK Видео, Rutube). Телемост сюда не
   /// годится: он запрещает встраивание заголовками, для него только link.
   embedUrl      String?
+  /// Обложка трансляции: показывается в миниатюре и в карточках записей,
+  /// когда живой картинки взять негде.
+  posterSrc     String?
   embed         Boolean  @default(false)
   chat          Boolean  @default(false)
   pollQuestion  String?

@@ -230,7 +230,18 @@ export default async function LivePage() {
             <div className={styles.recRow}>
               {recorded.map((b) => (
                 <article key={b.id} className={styles.recCard}>
-                  <div className={styles.recFrame}>
+                  <div
+                    className={styles.recFrame}
+                    style={
+                      b.posterSrc
+                        ? {
+                            backgroundImage: `url("${b.posterSrc}")`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }
+                        : undefined
+                    }
+                  >
                     <span className={`mono ${styles.recBadge}`}>ЗАПИСЬ</span>
                   </div>
                   <h3 className={styles.recCardTitle}>{b.title}</h3>

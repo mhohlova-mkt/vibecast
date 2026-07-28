@@ -39,6 +39,7 @@ export type BroadcastView = {
   status: 'draft' | 'scheduled' | 'live' | 'recorded'
   link: string
   embedUrl: string | null
+  posterSrc: string | null
   embed: boolean
   chat: boolean
   poll: { question: string; options: string[] } | null
@@ -141,6 +142,7 @@ function toBroadcast(b: {
   status: string
   link: string
   embedUrl: string | null
+  posterSrc: string | null
   embed: boolean
   chat: boolean
   pollQuestion: string | null
@@ -167,6 +169,7 @@ function toBroadcast(b: {
     link: b.link,
     // Ссылки, сохранённые до нормализации, приводим на чтении.
     embedUrl: b.embedUrl ? (normalizeEmbedUrl(b.embedUrl).url ?? null) : null,
+    posterSrc: b.posterSrc,
     embed: b.embed,
     chat: b.chat,
     poll:
