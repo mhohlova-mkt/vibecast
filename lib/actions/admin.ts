@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
-import { requireUser } from '@/lib/auth'
+import { requireUser, hashPassword } from '@/lib/auth'
 
 const TELEMOST = /^https:\/\/telemost\.yandex\.ru\//
 
@@ -232,6 +232,30 @@ export async function changeRole(fd: FormData) {
   const target = await prisma.user.findUnique({ where: { id } })
   if (target?.role === 'owner') throw new Error('Нельзя изменить роль владельца')
   await prisma.user.update({ where: { id }, data: { role } })
+  refresh('/admin/team')
+}
+
+/**
+ * Владелец задаёт пароль участнику вручную.
+ * Пока не подключена почта, это единственный способ впустить человека
+ * в админку: приглашение по ссылке требует отправки письма.
+ */
+export async function setMemberPassword(fd: FormData) {
+  await requireUser(['owner'])
+  const id = str(fd, 'id')
+  const password = String(fd.get('password') ?? '')
+
+  if (password.length < 10)
+    throw new Error('Пароль должен быть не короче 10 символов')
+
+  const target = await prisma.user.findUnique({ where: { id } })
+  if (!target) throw new Error('Участник не найден')
+  if (target.role === 'owner') throw new Error('Пароль владельца меняется только им самим')
+
+  await prisma.user.update({
+    where: { id },
+    data: { passwordHash: await hashPassword(password), invited: false },
+  })
   refresh('/admin/team')
 }
 

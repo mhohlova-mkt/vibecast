@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
-import { inviteMember, changeRole, removeMember } from '@/lib/actions/admin'
+import {
+  inviteMember,
+  changeRole,
+  removeMember,
+  setMemberPassword,
+} from '@/lib/actions/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -228,14 +233,74 @@ export default async function TeamPage() {
                   </button>
                 </form>
               ) : null}
+
+              {/* Пока нет рассылки, пароль участнику задаёт владелец и
+                  передаёт лично — иначе войти человеку нечем. */}
+              {isOwner && m.role !== 'owner' ? (
+                <form
+                  action={setMemberPassword}
+                  style={{
+                    flexBasis: '100%',
+                    display: 'flex',
+                    gap: 9,
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    borderTop: '1px solid var(--line)',
+                    paddingTop: 12,
+                    marginTop: 4,
+                  }}
+                >
+                  <input type="hidden" name="id" value={m.id} />
+                  <span
+                    className="mono"
+                    style={{ fontSize: 10.5, letterSpacing: '.08em', color: 'var(--muted)' }}
+                  >
+                    {m.invited ? 'ВЫДАТЬ ПАРОЛЬ' : 'СМЕНИТЬ ПАРОЛЬ'}
+                  </span>
+                  <input
+                    name="password"
+                    type="text"
+                    minLength={10}
+                    required
+                    placeholder="не короче 10 символов"
+                    autoComplete="off"
+                    style={{
+                      ...inputStyle,
+                      flex: 1,
+                      minWidth: 220,
+                      padding: '9px 13px',
+                      fontSize: 13.5,
+                      fontFamily: 'var(--font-mono), monospace',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      border: '1px solid var(--dark)',
+                      background: 'transparent',
+                      color: 'var(--dark)',
+                      borderRadius: 'var(--r-pill)',
+                      padding: '9px 18px',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Сохранить пароль
+                  </button>
+                </form>
+              ) : null}
             </div>
           )
         })}
       </div>
 
-      <p style={{ marginTop: 18, fontSize: 13, color: 'var(--muted)', maxWidth: '70ch' }}>
-        Приглашённый участник появляется в списке сразу, но войти сможет после того,
-        как задаст себе пароль. Отправку писем-приглашений подключим вместе с рассылкой.
+      <p style={{ marginTop: 18, fontSize: 13, color: 'var(--muted)', maxWidth: '70ch', lineHeight: 1.6 }}>
+        Писем система пока не отправляет, поэтому доступ выдаётся так: добавьте
+        человека, задайте ему пароль и передайте лично. Заходить он будет по своей
+        почте и этому паролю. Пароль хранится в зашифрованном виде — посмотреть
+        его позже нельзя, только заменить на новый.
       </p>
     </div>
   )
