@@ -163,12 +163,22 @@ fi
 
 log "Собираем приложение"
 cd "$APP_DIR"
-mkdir -p "$APP_DIR/data" "$APP_DIR/public/uploads"
+# Загрузки живут вне репозитория: их не сносит git reset при обновлении,
+# и Next не пытается раздавать их как статику сборки.
+UPLOAD_DIR="$APP_DIR/data/uploads"
+mkdir -p "$APP_DIR/data" "$UPLOAD_DIR"
+
+# Демо-обложки кладём один раз, при первой установке.
+if [ -d "$APP_DIR/assets/demo" ] && [ -z "$(ls -A "$UPLOAD_DIR" 2>/dev/null)" ]; then
+  cp -n "$APP_DIR/assets/demo/." "$UPLOAD_DIR/" 2>/dev/null ||
+    cp -rn "$APP_DIR/assets/demo/"* "$UPLOAD_DIR/" 2>/dev/null || true
+  echo "демо-обложки скопированы: $(ls "$UPLOAD_DIR" | wc -l) файлов"
+fi
 
 if [ ! -f "$APP_DIR/.env" ]; then
   cat > "$APP_DIR/.env" <<EOF
 DATABASE_URL="file:${APP_DIR}/data/vibecast.db"
-UPLOAD_DIR="${APP_DIR}/public/uploads"
+UPLOAD_DIR="${APP_DIR}/data/uploads"
 AUTH_SECRET="$(openssl rand -hex 32)"
 NODE_ENV=production
 EOF
@@ -228,7 +238,7 @@ server {
 
     # Загруженные файлы отдаёт nginx, не Node.
     location /uploads/ {
-        alias ${APP_DIR}/public/uploads/;
+        alias ${APP_DIR}/data/uploads/;
         access_log off;
         expires 30d;
     }

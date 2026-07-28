@@ -10,7 +10,10 @@ const VIDEO = /^video\/(mp4|webm)$/
 const MAX_IMAGE = 8 * 1024 * 1024 // 8 МБ — как в дизайне
 const MAX_VIDEO = 12 * 1024 * 1024 // 12 МБ
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'public', 'uploads')
+// Вне public/: Next раздаёт public только в том виде, что был на сборке,
+// и загруженное позже не отдаёт. Раздачей занимается app/uploads/[...path].
+const UPLOAD_DIR =
+  process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'data', 'uploads')
 
 /** Загрузка медиа. Только для вошедших в админку. */
 export async function POST(req: Request) {
