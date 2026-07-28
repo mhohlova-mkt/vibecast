@@ -22,7 +22,8 @@ export default function Banner({ banner }: { banner: HomeView['banner'] }) {
     )
   }
 
-  const img = (banner.img || '').trim()
+  const src = (banner.img || '').trim()
+  const isVideo = /\.(mp4|webm)(\?.*)?$/i.test(src)
 
   return (
     <a
@@ -32,12 +33,26 @@ export default function Banner({ banner }: { banner: HomeView['banner'] }) {
       rel="noopener noreferrer nofollow"
       title="Реклама"
       style={
-        img
-          ? { background: `url("${img}") center/cover no-repeat` }
+        src && !isVideo
+          ? { background: `url("${src}") center/cover no-repeat` }
           : { background: '#fff' }
       }
     >
-      {img ? null : (
+      {/* muted и playsinline обязательны: без них мобильные браузеры
+          не дают ролику запуститься сам. */}
+      {isVideo ? (
+        <video
+          className={styles.video}
+          src={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+      ) : null}
+
+      {src ? null : (
         <span className={styles.placeholder}>МЕСТО ПОД БАННЕР</span>
       )}
     </a>
