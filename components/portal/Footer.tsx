@@ -7,6 +7,28 @@ type FooterProps = {
   subscribeAction?: (formData: FormData) => void | Promise<void>
 }
 
+/** Каналы проекта. Иконки рисуем сами — сторонние наборы тянуть незачем. */
+const SOCIAL = [
+  {
+    href: 'https://t.me/vibecaast',
+    label: 'Telegram',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M21.94 4.6 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.47-2.27 2.18c-.25.25-.46.46-.95.46l.34-4.79 8.72-7.88c.38-.34-.08-.53-.59-.19L6.98 13.09l-4.63-1.45c-1-.31-1.02-1 .21-1.48l18.1-6.98c.84-.31 1.57.2 1.28 1.42Z" />
+      </svg>
+    ),
+  },
+  {
+    href: 'https://vk.ru/vibecaast',
+    label: 'ВКонтакте',
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13.16 17.2c-5.35 0-8.55-3.72-8.68-9.9h2.7c.09 4.55 2.13 6.48 3.76 6.88V7.3h2.55v3.86c1.6-.17 3.28-2 3.85-3.86h2.54c-.43 2.3-2.22 4.13-3.5 4.88 1.28.61 3.31 2.2 4.09 5.02h-2.8c-.6-1.9-2.13-3.37-4.18-3.57v3.57h-.33Z" />
+      </svg>
+    ),
+  },
+] as const
+
 const SECTIONS = [
   { href: '/', label: 'Лента' },
   { href: '/live', label: 'Вебинары' },
@@ -48,6 +70,22 @@ export default function Footer({ pages, subscribeAction }: FooterProps) {
               Медиа и платформа вебинаров об IT, вайбкодинге и инструментах для
               бизнеса.
             </p>
+
+            <div className={styles.social}>
+              {SOCIAL.map((s) => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialLink}
+                  title={s.label}
+                >
+                  {s.icon}
+                  {s.label}
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className={styles.col}>
