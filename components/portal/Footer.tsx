@@ -12,6 +12,7 @@ const SECTIONS = [
   { href: '/live', label: 'Вебинары' },
   { href: '/tools', label: 'Инструменты' },
   { href: '/learn', label: 'Обучение' },
+  { href: '/suggest', label: 'Предложить новость' },
 ] as const
 
 export default function Footer({ pages, subscribeAction }: FooterProps) {

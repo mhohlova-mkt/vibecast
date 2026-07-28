@@ -150,3 +150,24 @@ model Event {
 
   @@index([kind, createdAt])
 }
+
+/// Новость, предложенная читателем. Публикуется только после проверки
+/// человеком: одобрение превращает её в обычную статью.
+model Submission {
+  id          String    @id @default(cuid())
+  authorName  String
+  authorEmail String
+  authorPhoto String?
+  title       String
+  text        String
+  /// JSON: string[] — пути к загруженным картинкам
+  images      String    @default("[]")
+  /// pending | approved | rejected
+  status      String    @default("pending")
+  /// заметка редакции: причина отказа или комментарий
+  note        String    @default("")
+  createdAt   DateTime  @default(now())
+  reviewedAt  DateTime?
+
+  @@index([status, createdAt])
+}
