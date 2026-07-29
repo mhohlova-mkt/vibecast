@@ -54,8 +54,12 @@ export default function EmailGate({
       </div>
 
       <span className={styles.consent}>
-        Оставляя почту, вы подписываетесь на дайджест и напоминания об эфирах.
-        Отписаться можно в один клик.
+        Оставляя почту, вы подписываетесь на дайджест и напоминания об эфирах
+        и соглашаетесь с{' '}
+        <a href="/p/privacy" target="_blank" rel="noopener noreferrer">
+          обработкой данных
+        </a>
+        . Отписаться можно в один клик.
       </span>
 
       {state?.error ? <span className={styles.error}>{state.error}</span> : null}

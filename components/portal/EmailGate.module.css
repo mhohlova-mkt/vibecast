@@ -85,3 +85,12 @@
   font-weight: 600;
   color: #ff7a6b;
 }
+
+.consent a {
+  color: #a9b29c;
+  text-decoration: underline;
+}
+
+.consent a:hover {
+  color: var(--accent, #cbf54a);
+}

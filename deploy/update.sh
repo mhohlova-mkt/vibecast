@@ -40,6 +40,7 @@ log "Сборка"
 npm ci --no-audit --no-fund || npm install --no-audit --no-fund
 npx prisma generate
 npx prisma migrate deploy
+npx tsx prisma/ensure-pages.ts || echo 'страницы пропущены'
 npm run build
 
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"

@@ -10,9 +10,10 @@ const NAV = [
   { n: '02', label: 'Трансляции', href: '/admin/broadcasts' },
   { n: '03', label: 'Статьи', href: '/admin/articles' },
   { n: '04', label: 'Предложенные', href: '/admin/submissions' },
-  { n: '05', label: 'Страницы', href: '/admin/pages' },
-  { n: '06', label: 'Команда', href: '/admin/team' },
-  { n: '07', label: 'Статистика', href: '/admin/stats' },
+  { n: '05', label: 'Подписчики', href: '/admin/subscribers' },
+  { n: '06', label: 'Страницы', href: '/admin/pages' },
+  { n: '07', label: 'Команда', href: '/admin/team' },
+  { n: '08', label: 'Статистика', href: '/admin/stats' },
 ]
 
 function initials(name: string) {
