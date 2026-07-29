@@ -11,6 +11,10 @@ import { saveHome } from '@/lib/actions/admin'
 type ArticleOption = { id: string; title: string; author: string }
 
 export type HomeDraft = {
+  promoKind: string
+  promoMediaSrc: string | null
+  promoMediaKind: string | null
+  promoLink: string
   heroArticleId: string | null
   heroMediaSrc: string | null
   heroMediaKind: string | null
@@ -65,6 +69,9 @@ export default function HomeEditor({
   const [heroId, setHeroId] = useState(draft.heroArticleId ?? '')
   const [heroMedia, setHeroMedia] = useState(draft.heroMediaSrc ?? '')
   const [heroKind, setHeroKind] = useState(draft.heroMediaKind ?? '')
+  const [promoKind, setPromoKind] = useState(draft.promoKind || 'broadcast')
+  const [promoMedia, setPromoMedia] = useState(draft.promoMediaSrc ?? '')
+  const [promoMediaKind, setPromoMediaKind] = useState(draft.promoMediaKind ?? '')
   const [bannerOn, setBannerOn] = useState(draft.bannerEnabled)
   const [bannerMode, setBannerMode] = useState<'media' | 'html'>(
     draft.bannerHtml.trim() ? 'html' : 'media',
@@ -101,6 +108,9 @@ export default function HomeEditor({
       <input type="hidden" name="heroArticleId" value={heroId} />
       <input type="hidden" name="heroMediaSrc" value={heroMedia} />
       <input type="hidden" name="heroMediaKind" value={heroKind} />
+      <input type="hidden" name="promoKind" value={promoKind} />
+      <input type="hidden" name="promoMediaSrc" value={promoMedia} />
+      <input type="hidden" name="promoMediaKind" value={promoMediaKind} />
       <input type="hidden" name="bannerEnabled" value={bannerOn ? 'true' : ''} />
       <input type="hidden" name="bannerImg" value={bannerImg} />
       <input type="hidden" name="learnPinOn" value={learnOn ? 'true' : ''} />
@@ -284,6 +294,148 @@ export default function HomeEditor({
             </span>
           </div>
         </div>
+      </section>
+
+      {/* ─── Блок справа ─── */}
+      <section style={card}>
+        <span style={label}>Блок справа на главной</span>
+        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 }}>
+          Пока трансляций нет, место можно занять баннером — оно на самом
+          видном экране, и пустым его держать незачем.
+        </p>
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[
+            { key: 'broadcast', label: 'Эфир или анонс' },
+            { key: 'media', label: 'Картинка или видео' },
+            { key: 'hidden', label: 'Скрыть блок' },
+          ].map((o) => {
+            const on = o.key === promoKind
+            return (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setPromoKind(o.key)}
+                style={{
+                  border: on ? '1.5px solid var(--dark)' : '1.5px solid #D8D7CB',
+                  background: on ? 'var(--dark)' : '#FCFCF9',
+                  color: on ? 'var(--dark-text)' : 'var(--dark)',
+                  borderRadius: 'var(--r-pill)',
+                  padding: '9px 18px',
+                  fontSize: 13.5,
+                  fontWeight: on ? 700 : 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {o.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {promoKind === 'media' ? (
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ flexShrink: 0 }}>
+              <div
+                style={{
+                  width: 220,
+                  minHeight: 150,
+                  borderRadius: 20,
+                  overflow: 'hidden',
+                  border: promoMedia ? '1px solid var(--line)' : '1.5px dashed #C9C8BC',
+                  background: '#F4F3EC',
+                  display: 'grid',
+                  placeItems: 'center',
+                }}
+              >
+                {promoMedia ? (
+                  promoMediaKind === 'video' ? (
+                    <video
+                      src={promoMedia}
+                      style={{ width: '100%', display: 'block' }}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={promoMedia} alt="" style={{ width: '100%', display: 'block' }} />
+                  )
+                ) : (
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>Не загружено</span>
+                )}
+              </div>
+              <span
+                style={{ display: 'block', marginTop: 6, fontSize: 11.5, color: 'var(--muted)' }}
+              >
+                Так это выглядит на сайте
+              </span>
+            </div>
+
+            <div
+              style={{
+                flex: 1,
+                minWidth: 220,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                alignItems: 'flex-start',
+              }}
+            >
+              <input
+                type="file"
+                accept="image/*,video/mp4,video/webm"
+                style={{ fontSize: 13 }}
+                onChange={async (e) => {
+                  const f = e.target.files?.[0]
+                  if (!f) return
+                  const up = await upload(f)
+                  if (up) {
+                    setPromoMedia(up.src)
+                    setPromoMediaKind(up.kind)
+                  }
+                }}
+              />
+              {promoMedia ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPromoMedia('')
+                    setPromoMediaKind('')
+                  }}
+                  style={{
+                    border: '1px solid var(--line)',
+                    background: 'transparent',
+                    borderRadius: 'var(--r-pill)',
+                    padding: '8px 16px',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Убрать
+                </button>
+              ) : null}
+              <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+                Ширина блока около 380 пикселей, высота свободная — пропорции
+                берутся из файла. Видео крутится само и без звука.
+              </span>
+
+              <label style={{ ...label, marginTop: 4 }} htmlFor="promoLink">
+                Ссылка по клику
+              </label>
+              <input
+                id="promoLink"
+                name="promoLink"
+                defaultValue={draft.promoLink}
+                placeholder="https://... или /live"
+                style={field}
+              />
+            </div>
+          </div>
+        ) : (
+          <input type="hidden" name="promoLink" value={draft.promoLink} />
+        )}
       </section>
 
       {/* ─── Рекламный баннер ─── */}

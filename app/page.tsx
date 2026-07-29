@@ -10,6 +10,7 @@ import Footer from '@/components/portal/Footer'
 import Hero from '@/components/portal/Hero'
 import LivePromo from '@/components/portal/LivePromo'
 import Banner from '@/components/portal/Banner'
+import PromoMedia from '@/components/portal/PromoMedia'
 import ArticleCard from '@/components/portal/ArticleCard'
 import SuggestCta from '@/components/portal/SuggestCta'
 import styles from './home.module.css'
@@ -51,7 +52,15 @@ export default async function Home() {
             ) : null}
 
             <div className={styles.rail}>
-              <LivePromo promo={promo} />
+              {home.promo.kind === 'media' && home.promo.mediaSrc ? (
+                <PromoMedia
+                  src={home.promo.mediaSrc}
+                  kind={home.promo.mediaKind}
+                  link={home.promo.link}
+                />
+              ) : home.promo.kind === 'hidden' ? null : (
+                <LivePromo promo={promo} />
+              )}
               <Banner banner={home.banner} />
             </div>
           </div>

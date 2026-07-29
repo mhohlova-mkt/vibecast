@@ -68,6 +68,10 @@ export default async function AdminHome() {
       <HomeEditor
         articles={published}
         draft={{
+          promoKind: home?.promoKind ?? 'broadcast',
+          promoMediaSrc: home?.promoMediaSrc ?? null,
+          promoMediaKind: home?.promoMediaKind ?? null,
+          promoLink: home?.promoLink ?? '',
           heroArticleId: home?.heroArticleId ?? null,
           heroMediaSrc: home?.heroMediaSrc ?? null,
           heroMediaKind: home?.heroMediaKind ?? null,

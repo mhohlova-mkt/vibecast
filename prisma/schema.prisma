@@ -137,6 +137,12 @@ model Home {
   bannerHtml    String   @default("")
   bannerImg     String?
   bannerLink    String   @default("")
+  /// Что показывать в правом блоке главной:
+  /// broadcast — эфир или анонс, media — своя картинка/видео, hidden — скрыть.
+  promoKind      String   @default("broadcast")
+  promoMediaSrc  String?
+  promoMediaKind String? // image | video
+  promoLink      String   @default("")
   learnPinOn    Boolean  @default(false)
   /// Логотип или картинка в белой части закрепа; null = логотип по умолчанию
   learnPinImg   String?

@@ -49,6 +49,13 @@ export type BroadcastView = {
 }
 
 export type HomeView = {
+  /** broadcast — эфир/анонс, media — свой баннер, hidden — блок скрыт. */
+  promo: {
+    kind: 'broadcast' | 'media' | 'hidden'
+    mediaSrc: string | null
+    mediaKind: 'image' | 'video' | null
+    link: string
+  }
   heroArticleId: string | null
   heroMediaSrc: string | null
   heroMediaKind: 'image' | 'video' | null
@@ -213,6 +220,12 @@ export async function getHome(): Promise<HomeView> {
     heroArticleId: h?.heroArticleId ?? null,
     heroMediaSrc: h?.heroMediaSrc ?? null,
     heroMediaKind: (h?.heroMediaKind as 'image' | 'video' | null) ?? null,
+    promo: {
+      kind: (h?.promoKind as HomeView['promo']['kind']) ?? 'broadcast',
+      mediaSrc: h?.promoMediaSrc ?? null,
+      mediaKind: (h?.promoMediaKind as 'image' | 'video' | null) ?? null,
+      link: h?.promoLink ?? '',
+    },
     banner: {
       enabled: h?.bannerEnabled ?? false,
       html: h?.bannerHtml ?? '',

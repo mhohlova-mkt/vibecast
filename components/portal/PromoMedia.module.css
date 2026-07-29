@@ -1,0 +1,28 @@
+/* Баннер вместо блока эфира. Пропорции задаёт сам файл — так редакция
+   не привязана к одному формату и может поставить и вертикальный
+   баннер, и почти квадратный. */
+
+.promo {
+  display: block;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid #deddd2;
+  background: #15160f;
+  text-decoration: none;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+
+a.promo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px -22px rgba(21, 22, 15, 0.45);
+}
+
+.media {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 640px;
+  object-fit: cover;
+}
