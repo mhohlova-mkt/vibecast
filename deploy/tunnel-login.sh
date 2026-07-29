@@ -12,7 +12,7 @@
 set -uo pipefail
 
 BIN=/usr/local/bin/cloudflared
-NAME=vibecast
+NAME=vibecast-portal
 DOMAIN=vibecast.one
 CERT=/root/.cloudflared/cert.pem
 
@@ -44,22 +44,43 @@ fi
 log "Вход выполнен"
 
 # ─── 2. Туннель ───
-if "$BIN" tunnel list 2>/dev/null | grep -qw "$NAME"; then
-  log "Туннель ${NAME} уже создан"
-else
+# Имя сверяем точно по столбцу: grep -w ловил и «vibecast-vps», созданный
+# ранее в панели, а ключа доступа к нему на сервере нет — он остался
+# в браузере. Поэтому работаем только со своим туннелем.
+find_tunnel() {
+  "$BIN" tunnel list 2>/dev/null | awk -v n="$1" '$2 == n { print $1; exit }'
+}
+
+UUID=$(find_tunnel "$NAME")
+if [ -z "$UUID" ]; then
   log "Создаём туннель ${NAME}"
   "$BIN" tunnel create "$NAME" || {
     fail "Не удалось создать туннель"
     exit 1
   }
+  UUID=$(find_tunnel "$NAME")
 fi
 
-UUID=$("$BIN" tunnel list 2>/dev/null | grep -w "$NAME" | awk '{print $1}' | head -1)
 CREDS=/root/.cloudflared/${UUID}.json
+
+# Туннель может быть в аккаунте, а ключ — нет (создавали в панели).
+# Тогда делаем свой, с новым именем, вместо попыток угадать чужой ключ.
+if [ ! -f "$CREDS" ]; then
+  NAME="${NAME}-$(date +%s)"
+  log "Ключа нет — создаём новый туннель ${NAME}"
+  "$BIN" tunnel create "$NAME" || {
+    fail "Не удалось создать туннель"
+    exit 1
+  }
+  UUID=$(find_tunnel "$NAME")
+  CREDS=/root/.cloudflared/${UUID}.json
+fi
+
+echo "туннель: ${NAME}"
 echo "идентификатор: ${UUID}"
 
 [ -f "$CREDS" ] || {
-  fail "Файл доступа туннеля не найден: $CREDS"
+  fail "Файл доступа так и не появился: $CREDS"
   exit 1
 }
 
