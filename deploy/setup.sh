@@ -269,14 +269,24 @@ if [ -n "$DOMAIN" ]; then
     echo "certbot не смог — проверь, что домен указывает на этот сервер"
 fi
 
-log "Ежедневный бэкап базы"
-cat > /etc/cron.daily/vibecast-backup <<EOF
+log "Ежедневный бэкап"
+# База и картинки одним архивом. Снимок базы делаем через .backup —
+# так он консистентен, даже если в этот момент пишут через админку.
+cat > /usr/local/bin/vibecast-backup <<'EOS'
 #!/bin/sh
-mkdir -p ${APP_DIR}/backups
-sqlite3 ${APP_DIR}/data/vibecast.db ".backup ${APP_DIR}/backups/db-\$(date +%F).sqlite"
-find ${APP_DIR}/backups -name 'db-*.sqlite' -mtime +14 -delete
-EOF
-chmod +x /etc/cron.daily/vibecast-backup
+set -e
+APP=/opt/vibecast
+OUT=$APP/backups
+DAY=$(date +%F)
+mkdir -p "$OUT"
+TMP=$(mktemp -d)
+sqlite3 "$APP/data/vibecast.db" ".backup $TMP/vibecast.db"
+tar -czf "$OUT/vibecast-$DAY.tar.gz" -C "$TMP" vibecast.db -C "$APP/data" uploads
+rm -rf "$TMP"
+find "$OUT" -name "vibecast-*.tar.gz" -mtime +14 -delete
+EOS
+chmod +x /usr/local/bin/vibecast-backup
+ln -sf /usr/local/bin/vibecast-backup /etc/cron.daily/vibecast-backup
 
 log "Готово"
 systemctl --no-pager --lines=0 status vibecast | head -5
