@@ -3,106 +3,79 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './VibeRadio.module.css'
 
-type MusicScene = 'ambient' | 'pulse' | 'night'
-type Scene = 'rain' | MusicScene
+type StationId = 'rain' | 'depth' | 'flow' | 'air'
 
-type AudioEngine = {
-  context: AudioContext
-  master: GainNode
-  timer: number
-  stopped: boolean
+type Track = {
+  title: string
+  artist: string
+  src: string
 }
 
-type SceneConfig = {
-  bpm: number
-  chords: number[][]
-  bass: number[]
-  melody: number[]
-  drums: boolean
-  drive: number
-}
-
-type ModeCopy = {
+type Station = {
   label: string
-  note: string
   title: string
   description: string
+  tracks: Track[]
 }
 
-const MODES: Record<Scene, ModeCopy> = {
+const STATIONS: Record<StationId, Station> = {
   rain: {
     label: 'Дождь',
-    note: 'стереозапись у окна',
     title: 'Дождь за окном',
-    description:
-      'Настоящая полевая стереозапись: дождь по стенам и стеклу, записанный из комнаты у полуоткрытого окна.',
+    description: 'Полевая стереозапись дождя у полуоткрытого окна.',
+    tracks: [
+      {
+        title: 'Rain from Half Open Window 2',
+        artist: 'Rutger Muller',
+        src: '/audio/rain-window.mp3',
+      },
+    ],
   },
-  ambient: {
-    label: 'Ambient',
-    note: 'воздушные аккорды',
-    title: 'Спокойный электронный фон',
-    description:
-      'Воздушные аккорды и редкие мелодические фразы собираются заново прямо в браузере.',
+  depth: {
+    label: 'Глубина',
+    title: 'Глубина',
+    description: 'Dub techno, minimal и мягкий аппаратный грув для работы.',
+    tracks: [
+      { title: '2018-08-31', artist: 'Doctor Dreamchip', src: '/audio/radio/depth/09-deep-2018-08-31.mp3' },
+      { title: 'Saturn — Tech House', artist: 'ertuzeus', src: '/audio/radio/depth/10-deep-saturn-tech-house.mp3' },
+      { title: '2018-09-05', artist: 'Doctor Dreamchip', src: '/audio/radio/depth/11-deep-2018-09-05.mp3' },
+      { title: 'Background Techno 131 BPM', artist: 'gis_sweden', src: '/audio/radio/depth/12-deep-background-techno.mp3' },
+      { title: 'Model D — Dub Techno', artist: 'thehorsevalse', src: '/audio/radio/depth/04-human-dub-techno-preview.mp3' },
+      { title: 'Neutron — Prog / Tech House', artist: 'thehorsevalse', src: '/audio/radio/depth/06-prog-tech-house-preview.mp3' },
+      { title: 'Melodic Techno', artist: 'thehorsevalse', src: '/audio/radio/depth/08-melodic-techno-loop-preview.mp3' },
+    ],
   },
-  pulse: {
-    label: 'Focus Beat',
-    note: 'ровный рабочий грув',
-    title: 'Ровный ритм для фокуса',
-    description:
-      'Ненавязчивый бас и рабочий грув помогают держать темп без резких переходов.',
+  flow: {
+    label: 'Поток',
+    title: 'Поток',
+    description: 'Downtempo, trip-hop и спокойная электроника без вокала.',
+    tracks: [
+      { title: 'Fallen', artist: 'Soulja Unit', src: '/audio/radio/flow/13-flow-fallen.mp3' },
+      { title: 'Welcome to Sector 11', artist: 'patman68', src: '/audio/radio/flow/14-flow-sector-11.mp3' },
+      { title: 'Parallel Universe', artist: 'Andrewkn', src: '/audio/radio/flow/15-flow-parallel-universe.mp3' },
+      { title: 'Struggling', artist: 'Soulja Unit', src: '/audio/radio/flow/16-flow-struggling.mp3' },
+      { title: 'Abstract Dream (Daylight)', artist: 'Soulja Unit', src: '/audio/radio/flow/17-flow-abstract-dream.mp3' },
+      { title: 'Downtemp amb 54E7', artist: 'Nate tha Late', src: '/audio/radio/flow/18-flow-downtemp-54e7.mp3' },
+      { title: 'Haha Void Instrumental', artist: 'HAHAVOID', src: '/audio/radio/flow/19-flow-haha-void.mp3' },
+      { title: 'Mission Failure 9', artist: 'SamuSounds79', src: '/audio/radio/flow/20-flow-mission-failure.mp3' },
+      { title: 'Ancient Times Trip Hop', artist: 'CVLTIV8R', src: '/audio/radio/flow/21-flow-ancient-times.mp3' },
+      { title: '2018-03-22', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/22-flow-2018-03-22.mp3' },
+      { title: '2020-01-04', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/23-flow-2020-01-04.mp3' },
+      { title: '2018-04-18', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/24-flow-2018-04-18.mp3' },
+    ],
   },
-  night: {
-    label: 'Night Drive',
-    note: 'тёмный синтвейв',
-    title: 'Ночной электронный поток',
-    description:
-      'Более тёмный синтезаторный рисунок для поздней работы и длинных задач.',
+  air: {
+    label: 'Воздух',
+    title: 'Воздух',
+    description: 'Длинный evolving ambient без ударных и резких переходов.',
+    tracks: [
+      { title: 'Aleatoric Ambient', artist: 'thehorsevalse', src: '/audio/radio/air/05-aleatoric-ambient-29min-preview.mp3' },
+      { title: 'Semi-generative Ambient', artist: 'thehorsevalse', src: '/audio/radio/air/07-semi-generative-ambient-preview.mp3' },
+    ],
   },
 }
 
-const MUSIC: Record<MusicScene, SceneConfig> = {
-  ambient: {
-    bpm: 68,
-    chords: [
-      [57, 60, 64, 67],
-      [53, 57, 60, 64],
-      [48, 52, 55, 59],
-      [55, 59, 62, 64],
-    ],
-    bass: [45, 41, 36, 43],
-    melody: [69, 72, 76, 79, 76, 72, 71, 74],
-    drums: false,
-    drive: 0.34,
-  },
-  pulse: {
-    bpm: 104,
-    chords: [
-      [57, 60, 64, 67],
-      [53, 57, 60, 64],
-      [48, 52, 55, 59],
-      [55, 59, 62, 67],
-    ],
-    bass: [45, 41, 36, 43],
-    melody: [69, 72, 76, 72, 67, 71, 74, 79],
-    drums: true,
-    drive: 0.52,
-  },
-  night: {
-    bpm: 92,
-    chords: [
-      [50, 53, 57, 60],
-      [46, 50, 53, 57],
-      [53, 57, 60, 64],
-      [48, 52, 55, 60],
-    ],
-    bass: [38, 34, 41, 36],
-    melody: [74, 77, 81, 77, 72, 76, 79, 84],
-    drums: true,
-    drive: 0.64,
-  },
-}
-
-const MODE_ORDER: Scene[] = ['rain', 'ambient', 'pulse', 'night']
+const STATION_ORDER: StationId[] = ['rain', 'depth', 'flow', 'air']
 
 function clock(seconds: number) {
   const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0
@@ -110,229 +83,9 @@ function clock(seconds: number) {
   return `${String(minutes).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`
 }
 
-function frequency(note: number) {
-  return 440 * 2 ** ((note - 69) / 12)
-}
-
-function makeReverb(context: AudioContext) {
-  const convolver = context.createConvolver()
-  const seconds = 2.8
-  const impulse = context.createBuffer(
-    2,
-    Math.floor(context.sampleRate * seconds),
-    context.sampleRate,
-  )
-  for (let channelIndex = 0; channelIndex < impulse.numberOfChannels; channelIndex++) {
-    const channel = impulse.getChannelData(channelIndex)
-    for (let index = 0; index < channel.length; index++) {
-      const decay = (1 - index / channel.length) ** 2.7
-      channel[index] = (Math.random() * 2 - 1) * decay
-    }
-  }
-  convolver.buffer = impulse
-  return convolver
-}
-
-function envelope(
-  gain: AudioParam,
-  start: number,
-  peak: number,
-  attack: number,
-  duration: number,
-) {
-  gain.setValueAtTime(0.0001, start)
-  gain.exponentialRampToValueAtTime(peak, start + attack)
-  gain.exponentialRampToValueAtTime(0.0001, start + duration)
-}
-
-function createMusic(scene: MusicScene, volume: number): AudioEngine {
-  const context = new AudioContext()
-  const config = MUSIC[scene]
-  const master = context.createGain()
-  const compressor = context.createDynamicsCompressor()
-  const dry = context.createGain()
-  const wet = context.createGain()
-  const reverb = makeReverb(context)
-  const delay = context.createDelay(1.2)
-  const feedback = context.createGain()
-
-  master.gain.value = Math.max(0.0001, volume / 100)
-  compressor.threshold.value = -18
-  compressor.knee.value = 18
-  compressor.ratio.value = 5
-  compressor.attack.value = 0.012
-  compressor.release.value = 0.28
-  dry.gain.value = 0.86
-  wet.gain.value = scene === 'ambient' ? 0.38 : 0.22
-  delay.delayTime.value = (60 / config.bpm) * 0.75
-  feedback.gain.value = 0.27
-
-  dry.connect(compressor)
-  reverb.connect(wet).connect(compressor)
-  delay.connect(feedback).connect(delay)
-  delay.connect(wet)
-  compressor.connect(master).connect(context.destination)
-
-  const engine: AudioEngine = {
-    context,
-    master,
-    timer: 0,
-    stopped: false,
-  }
-  const beat = 60 / config.bpm
-  let step = 0
-  let nextTime = context.currentTime + 0.08
-
-  function route(node: AudioNode, send = 0.32) {
-    node.connect(dry)
-    const sendGain = context.createGain()
-    sendGain.gain.value = send
-    node.connect(sendGain).connect(reverb)
-    node.connect(delay)
-  }
-
-  function pad(notes: number[], start: number) {
-    for (const [index, note] of notes.entries()) {
-      const oscillator = context.createOscillator()
-      const filter = context.createBiquadFilter()
-      const gain = context.createGain()
-      oscillator.type = index % 2 ? 'triangle' : 'sine'
-      oscillator.frequency.value = frequency(note)
-      oscillator.detune.value = index * 2.5 - 4
-      filter.type = 'lowpass'
-      filter.frequency.setValueAtTime(scene === 'night' ? 920 : 1450, start)
-      filter.Q.value = 0.7
-      envelope(gain.gain, start, 0.045, 0.38, beat * 7.8)
-      oscillator.connect(filter).connect(gain)
-      route(gain, scene === 'ambient' ? 0.72 : 0.44)
-      oscillator.start(start)
-      oscillator.stop(start + beat * 8)
-    }
-  }
-
-  function pluck(note: number, start: number, accent = false) {
-    const oscillator = context.createOscillator()
-    const filter = context.createBiquadFilter()
-    const gain = context.createGain()
-    oscillator.type = scene === 'night' ? 'sawtooth' : 'triangle'
-    oscillator.frequency.value = frequency(note)
-    filter.type = 'lowpass'
-    filter.frequency.setValueAtTime(scene === 'ambient' ? 1600 : 2300, start)
-    filter.frequency.exponentialRampToValueAtTime(420, start + beat * 0.65)
-    filter.Q.value = 2.8
-    envelope(gain.gain, start, accent ? 0.075 : 0.048, 0.012, beat * 0.72)
-    oscillator.connect(filter).connect(gain)
-    route(gain, 0.5)
-    oscillator.start(start)
-    oscillator.stop(start + beat * 0.8)
-  }
-
-  function bass(note: number, start: number) {
-    const oscillator = context.createOscillator()
-    const filter = context.createBiquadFilter()
-    const gain = context.createGain()
-    oscillator.type = scene === 'night' ? 'sawtooth' : 'triangle'
-    oscillator.frequency.value = frequency(note)
-    filter.type = 'lowpass'
-    filter.frequency.value = scene === 'night' ? 310 : 220
-    filter.Q.value = 1.1
-    envelope(gain.gain, start, config.drive * 0.16, 0.018, beat * 0.82)
-    oscillator.connect(filter).connect(gain)
-    gain.connect(dry)
-    oscillator.start(start)
-    oscillator.stop(start + beat * 0.9)
-  }
-
-  function kick(start: number) {
-    const oscillator = context.createOscillator()
-    const gain = context.createGain()
-    oscillator.type = 'sine'
-    oscillator.frequency.setValueAtTime(132, start)
-    oscillator.frequency.exponentialRampToValueAtTime(44, start + 0.16)
-    envelope(gain.gain, start, 0.34, 0.006, 0.25)
-    oscillator.connect(gain).connect(dry)
-    oscillator.start(start)
-    oscillator.stop(start + 0.27)
-  }
-
-  function clap(start: number) {
-    for (const offset of [0, 0.018, 0.036]) {
-      const oscillator = context.createOscillator()
-      const filter = context.createBiquadFilter()
-      const gain = context.createGain()
-      oscillator.type = 'square'
-      oscillator.frequency.value = 920 + offset * 5000
-      filter.type = 'bandpass'
-      filter.frequency.value = 1250
-      filter.Q.value = 0.8
-      envelope(gain.gain, start + offset, 0.026, 0.003, 0.075)
-      oscillator.connect(filter).connect(gain)
-      route(gain, 0.18)
-      oscillator.start(start + offset)
-      oscillator.stop(start + offset + 0.09)
-    }
-  }
-
-  function hat(start: number) {
-    const gain = context.createGain()
-    const filter = context.createBiquadFilter()
-    filter.type = 'highpass'
-    filter.frequency.value = 5400
-    envelope(gain.gain, start, 0.018, 0.002, 0.045)
-    for (const pitch of [431, 677, 983]) {
-      const oscillator = context.createOscillator()
-      oscillator.type = 'square'
-      oscillator.frequency.value = pitch
-      oscillator.connect(filter)
-      oscillator.start(start)
-      oscillator.stop(start + 0.055)
-    }
-    filter.connect(gain).connect(dry)
-  }
-
-  function schedule() {
-    const horizon = context.currentTime + 0.22
-    while (nextTime < horizon && !engine.stopped) {
-      const halfBeat = beat / 2
-      const chordIndex = Math.floor(step / 16) % config.chords.length
-      const withinChord = step % 16
-
-      if (withinChord === 0) pad(config.chords[chordIndex], nextTime)
-      if (withinChord % 4 === 0) bass(config.bass[chordIndex], nextTime)
-
-      const chord = config.chords[chordIndex]
-      const chordNote = chord[(withinChord / 2 + chordIndex) % chord.length | 0] + 12
-      if (scene === 'ambient') {
-        if (withinChord % 2 === 0) pluck(chordNote, nextTime, withinChord === 0)
-      } else {
-        pluck(chordNote, nextTime, withinChord % 4 === 0)
-      }
-
-      if (withinChord === 6 || withinChord === 14) {
-        const melodyIndex =
-          (Math.floor(step / 16) * 2 + (withinChord === 14 ? 1 : 0)) %
-          config.melody.length
-        pluck(config.melody[melodyIndex], nextTime, true)
-      }
-
-      if (config.drums) {
-        if (withinChord % 8 === 0 || withinChord % 8 === 4) kick(nextTime)
-        if (withinChord % 8 === 4) clap(nextTime)
-        if (withinChord % 2 === 1) hat(nextTime)
-      }
-
-      step++
-      nextTime += halfBeat
-    }
-  }
-
-  schedule()
-  engine.timer = window.setInterval(schedule, 80)
-  return engine
-}
-
 export default function VibeRadio({ full = false }: { full?: boolean }) {
-  const [scene, setScene] = useState<Scene>('rain')
+  const [stationId, setStationId] = useState<StationId>('rain')
+  const [trackIndex, setTrackIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -340,173 +93,149 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
   const [position, setPosition] = useState(0)
   const [duration, setDuration] = useState(0)
   const [repeat, setRepeat] = useState(false)
-  const engine = useRef<AudioEngine | null>(null)
   const audio = useRef<HTMLAudioElement | null>(null)
-  const startRequest = useRef(0)
-  const copy = MODES[scene]
+  const wantsPlayback = useRef(false)
 
-  const stop = useCallback(() => {
-    startRequest.current++
-    audio.current?.pause()
-    const current = engine.current
-    engine.current = null
-    setPlaying(false)
-    if (!current) return
-    current.stopped = true
-    window.clearInterval(current.timer)
-    const now = current.context.currentTime
-    current.master.gain.cancelScheduledValues(now)
-    current.master.gain.setValueAtTime(
-      Math.max(current.master.gain.value, 0.0001),
-      now,
-    )
-    current.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.35)
-    window.setTimeout(() => void current.context.close(), 420)
-  }, [])
+  const station = STATIONS[stationId]
+  const track = station.tracks[trackIndex]
 
-  const start = useCallback(
-    async (nextScene = scene) => {
-      if (engine.current) stop()
-      const request = ++startRequest.current
-      setLoading(true)
-      setError(null)
-      try {
-        if (nextScene === 'rain') {
-          const recording = audio.current
-          if (!recording) throw new Error('rain audio unavailable')
-          recording.volume = volume / 100
-          recording.loop = repeat
-          await recording.play()
-          if (request !== startRequest.current) {
-            recording.pause()
-            return
-          }
-          setPlaying(true)
-          return
-        }
-
-        const next = createMusic(nextScene, volume)
-        if (request !== startRequest.current) {
-          next.stopped = true
-          window.clearInterval(next.timer)
-          await next.context.close()
-          return
-        }
-        engine.current = next
-        await next.context.resume()
-        setPlaying(true)
-      } catch {
-        if (request === startRequest.current) {
-          setError('Не удалось загрузить запись. Попробуйте включить ещё раз.')
-        }
-      } finally {
-        if (request === startRequest.current) setLoading(false)
-      }
-    },
-    [repeat, scene, stop, volume],
-  )
-
-  useEffect(
-    () => () => {
-      audio.current?.pause()
-      if (!engine.current) return
-      engine.current.stopped = true
-      window.clearInterval(engine.current.timer)
-      void engine.current.context.close()
-    },
-    [],
-  )
-
-  useEffect(() => {
-    const recording = audio.current
-    if (!recording) return
-
-    const syncMetadata = () => {
-      setDuration(Number.isFinite(recording.duration) ? recording.duration : 0)
-      setPosition(recording.currentTime)
-    }
-    const syncPosition = () => setPosition(recording.currentTime)
-
-    syncMetadata()
-    recording.addEventListener('loadedmetadata', syncMetadata)
-    recording.addEventListener('durationchange', syncMetadata)
-    recording.addEventListener('timeupdate', syncPosition)
-    return () => {
-      recording.removeEventListener('loadedmetadata', syncMetadata)
-      recording.removeEventListener('durationchange', syncMetadata)
-      recording.removeEventListener('timeupdate', syncPosition)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (audio.current) audio.current.volume = volume / 100
-    const current = engine.current
-    if (!current) return
-    current.master.gain.setTargetAtTime(
-      Math.max(0.0001, volume / 100),
-      current.context.currentTime,
-      0.08,
-    )
-  }, [volume])
-
-  useEffect(() => {
-    if (audio.current) audio.current.loop = repeat
-  }, [repeat])
-
-  function chooseScene(next: Scene) {
-    if (loading) {
-      startRequest.current++
+  const start = useCallback(async () => {
+    const player = audio.current
+    if (!player) return
+    wantsPlayback.current = true
+    setLoading(true)
+    setError(null)
+    try {
+      await player.play()
+      setPlaying(true)
+    } catch {
+      wantsPlayback.current = false
+      setPlaying(false)
+      setError('Не удалось загрузить трек. Попробуйте ещё раз.')
+    } finally {
       setLoading(false)
     }
-    setScene(next)
-    if (playing) void start(next)
+  }, [])
+
+  const stop = useCallback(() => {
+    wantsPlayback.current = false
+    audio.current?.pause()
+    setPlaying(false)
+    setLoading(false)
+  }, [])
+
+  const changeTrack = useCallback(
+    (step: number) => {
+      setTrackIndex((current) =>
+        (current + step + station.tracks.length) % station.tracks.length,
+      )
+    },
+    [station.tracks.length],
+  )
+
+  useEffect(() => {
+    const player = audio.current
+    if (!player) return
+    let cancelled = false
+
+    setPosition(0)
+    setDuration(0)
+    setError(null)
+    player.load()
+
+    const resume = async () => {
+      if (cancelled || !wantsPlayback.current) return
+      setLoading(true)
+      try {
+        await player.play()
+        if (!cancelled) setPlaying(true)
+      } catch {
+        if (cancelled) return
+        wantsPlayback.current = false
+        setPlaying(false)
+        setError('Не удалось загрузить трек. Переключите его или попробуйте ещё раз.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    player.addEventListener('canplay', resume, { once: true })
+    if (player.readyState >= 1 && Number.isFinite(player.duration)) {
+      setDuration(player.duration)
+    }
+    if (player.readyState >= 3) void resume()
+    return () => {
+      cancelled = true
+      player.removeEventListener('canplay', resume)
+    }
+  }, [track.src])
+
+  useEffect(() => {
+    if (audio.current) {
+      audio.current.volume = volume / 100
+      audio.current.loop = repeat
+    }
+  }, [repeat, volume])
+
+  function chooseStation(next: StationId) {
+    if (next === stationId) return
+    setStationId(next)
+    setTrackIndex(0)
   }
 
   function seek(next: number) {
-    const recording = audio.current
-    if (!recording || !Number.isFinite(recording.duration)) return
-    recording.currentTime = Math.min(Math.max(next, 0), recording.duration)
-    setPosition(recording.currentTime)
+    const player = audio.current
+    if (!player || !Number.isFinite(player.duration)) return
+    player.currentTime = Math.min(Math.max(next, 0), player.duration)
+    setPosition(player.currentTime)
   }
 
-  const playLabel = loading
-    ? `Загружаем «${copy.label}»`
-    : playing
-      ? `Поставить «${copy.label}» на паузу`
-      : `Включить «${copy.label}»`
+  function handleEnded() {
+    if (repeat) return
+    if (station.tracks.length === 1) {
+      wantsPlayback.current = false
+      setPlaying(false)
+      setPosition(duration)
+      return
+    }
+    changeTrack(1)
+  }
 
   return (
     <section
       className={styles.radio}
       data-full={full ? '' : undefined}
-      data-mode={scene}
+      data-mode={stationId}
     >
       <audio
         ref={audio}
-        src="/audio/rain-window.mp3"
+        src={track.src}
         preload="metadata"
         loop={repeat}
-        onEnded={() => {
-          setPosition(duration)
-          setPlaying(false)
+        onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
+        onDurationChange={(event) => setDuration(event.currentTarget.duration)}
+        onTimeUpdate={(event) => setPosition(event.currentTarget.currentTime)}
+        onEnded={handleEnded}
+        onError={() => {
+          setLoading(false)
+          setError('Этот трек не загрузился. Переключите на следующий.')
         }}
       />
+
       <div className={styles.topline}>
         <span className={`mono ${styles.eyebrow}`}>
-          <span className={styles.dot} /> VIBE FOCUS
+          <span className={styles.dot} /> VIBE RADIO
         </span>
-        <span className={styles.license}>
-          {scene === 'rain' ? 'FIELD RECORDING · CC0' : 'GENERATIVE LIVE'}
-        </span>
+        <span className={styles.license}>CC0 · БЕЗ ВОКАЛА</span>
       </div>
 
       <div
         className={styles.visual}
-        data-rain={scene === 'rain' ? '' : undefined}
+        data-rain={stationId === 'rain' ? '' : undefined}
         aria-hidden="true"
       >
         <div className={styles.orb} data-playing={playing ? '' : undefined} />
-        {scene === 'rain' ? (
+        {stationId === 'rain' ? (
           <div className={styles.rain} data-playing={playing ? '' : undefined}>
             {Array.from({ length: 32 }, (_, index) => (
               <i
@@ -532,67 +261,86 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
 
       <div className={styles.copy}>
         <div>
-          <h2 className={styles.title}>{copy.title}</h2>
-          <p className={styles.note}>{error ?? copy.description}</p>
+          <h2 className={styles.title}>{station.title}</h2>
+          <p className={styles.note}>{error ?? station.description}</p>
         </div>
         <button
           type="button"
           className={styles.play}
           onClick={() => (playing ? stop() : void start())}
-          aria-label={playLabel}
+          aria-label={playing ? 'Пауза' : `Включить «${station.label}»`}
           disabled={loading}
         >
           {loading ? '…' : playing ? 'Ⅱ' : '▶'}
         </button>
       </div>
 
-      <div className={styles.scenes} aria-label="Звуковой режим">
-        {MODE_ORDER.map((id) => (
+      <div className={styles.scenes} aria-label="Станция">
+        {STATION_ORDER.map((id) => (
           <button
             key={id}
             type="button"
             className={styles.scene}
-            data-active={scene === id ? '' : undefined}
-            onClick={() => chooseScene(id)}
-            title={MODES[id].note}
+            data-active={stationId === id ? '' : undefined}
+            onClick={() => chooseStation(id)}
           >
-            {MODES[id].label}
+            {STATIONS[id].label}
           </button>
         ))}
       </div>
 
-      {scene === 'rain' ? (
-        <div className={styles.transport}>
-          <div className={styles.timeline}>
-            <span>{clock(position)}</span>
-            <input
-              className={styles.progress}
-              type="range"
-              min="0"
-              max={duration || 0}
-              step="0.1"
-              value={Math.min(position, duration || 0)}
-              onChange={(event) => seek(Number(event.target.value))}
-              aria-label="Позиция в записи"
-            />
-            <span>{clock(duration)}</span>
-          </div>
+      <div className={styles.trackRow}>
+        <button
+          type="button"
+          className={styles.trackNav}
+          onClick={() => changeTrack(-1)}
+          disabled={station.tracks.length === 1}
+          aria-label="Предыдущий трек"
+        >
+          ‹
+        </button>
+        <div className={styles.trackCopy}>
+          <strong>{track.title}</strong>
+          <span>{track.artist} · {trackIndex + 1}/{station.tracks.length}</span>
+        </div>
+        <button
+          type="button"
+          className={styles.trackNav}
+          onClick={() => changeTrack(1)}
+          disabled={station.tracks.length === 1}
+          aria-label="Следующий трек"
+        >
+          ›
+        </button>
+      </div>
+
+      <div className={styles.transport}>
+        <div className={styles.timeline}>
+          <span>{clock(position)}</span>
+          <input
+            className={styles.progress}
+            type="range"
+            min="0"
+            max={duration || 0}
+            step="0.1"
+            value={Math.min(position, duration || 0)}
+            onChange={(event) => seek(Number(event.target.value))}
+            aria-label="Позиция в треке"
+          />
+          <span>{clock(duration)}</span>
           <button
             type="button"
             className={styles.repeat}
             data-active={repeat ? '' : undefined}
+            aria-label={repeat ? 'Выключить повтор трека' : 'Повторять трек'}
+            title={repeat ? 'Повтор включён' : 'Повторять трек'}
             aria-pressed={repeat}
             onClick={() => setRepeat((value) => !value)}
           >
-            ↻ {repeat ? 'Повтор включён' : 'Повтор трека'}
+            ↻
           </button>
         </div>
-      ) : (
-        <div className={styles.liveTransport}>
-          <span>LIVE</span>
-          <span>Бесконечный поток без таймера</span>
-        </div>
-      )}
+      </div>
 
       <label className={styles.volume}>
         <span>Громкость</span>

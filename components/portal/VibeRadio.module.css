@@ -233,14 +233,77 @@
   color: var(--accent, #cbf54a);
 }
 
-.transport {
+.trackRow {
   display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
   gap: 10px;
+  min-height: 50px;
+  padding: 8px;
+  border: 1px solid #2a2b22;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.trackCopy {
+  min-width: 0;
+  text-align: center;
+}
+
+.trackCopy strong,
+.trackCopy span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackCopy strong {
+  color: #f4f3ec;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.trackCopy span {
+  margin-top: 3px;
+  color: #74796d;
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.trackNav {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #3a3b31;
+  border-radius: 8px;
+  background: transparent;
+  color: #c7c6ba;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.trackNav:hover:not(:disabled) {
+  border-color: var(--accent, #cbf54a);
+  color: var(--accent, #cbf54a);
+}
+
+.trackNav:disabled {
+  opacity: .25;
+  cursor: default;
+}
+
+.transport {
+  display: block;
 }
 
 .timeline {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  grid-template-columns: 42px minmax(0, 1fr) 42px 32px;
   align-items: center;
   gap: 10px;
   color: #a9b29c;
@@ -259,33 +322,23 @@
 }
 
 .repeat {
-  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  justify-self: end;
   border: 1px solid #3a3b31;
-  border-radius: 999px;
-  padding: 7px 11px;
+  border-radius: 8px;
+  padding: 0;
   background: transparent;
   color: #8f9487;
-  font-size: 11px;
+  font-size: 17px;
+  line-height: 1;
   cursor: pointer;
 }
 
 .repeat[data-active] {
   border-color: var(--accent, #cbf54a);
-  color: var(--accent, #cbf54a);
-}
-
-.liveTransport {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #6f7567;
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-.liveTransport span:first-child {
   color: var(--accent, #cbf54a);
 }
 
@@ -334,5 +387,6 @@
   .radio { min-height: 450px; }
   .license { display: none; }
   .scenes { flex-wrap: wrap; }
-  .timeline { grid-template-columns: 38px minmax(0, 1fr) 38px; gap: 7px; }
+  .timeline { grid-template-columns: 38px minmax(0, 1fr) 38px 30px; gap: 7px; }
+  .repeat { width: 30px; height: 30px; }
 }
