@@ -22,9 +22,9 @@ const cats = [
 ]
 
 const team = [
-  { id: 't2', name: 'Ирина Полякова', email: 'irina@vibecast.ru', role: 'editor' },
-  { id: 't3', name: 'Денис Орлов', email: 'denis@vibecast.ru', role: 'editor' },
-  { id: 't4', name: 'Анна Лебедева', email: 'anna@vibecast.ru', role: 'moderator' },
+  { id: 't2', name: 'Ирина Полякова', email: 'irina@vibecast.one', role: 'editor' },
+  { id: 't3', name: 'Денис Орлов', email: 'denis@vibecast.one', role: 'editor' },
+  { id: 't4', name: 'Анна Лебедева', email: 'anna@vibecast.one', role: 'moderator' },
 ]
 
 const broadcasts = [
@@ -209,12 +209,12 @@ const pages = [
   {
     id: 'speakers',
     title: 'Спикерам',
-    body: 'Выступите в эфире vibecast: расскажите о своём опыте, продукте или рабочем процессе.\n\nФормат — 60–90 минут: живой разбор, демо и ответы на вопросы зрителей. Аудитория — предприниматели, продакты и разработчики, которые собирают продукты с помощью AI-инструментов.\n\nНапишите нам на hello@vibecast.ru с темой «Эфир» — вернёмся с датами в течение пары дней.',
+    body: 'Выступите в эфире vibecast: расскажите о своём опыте, продукте или рабочем процессе.\n\nФормат — 60–90 минут: живой разбор, демо и ответы на вопросы зрителей. Аудитория — предприниматели, продакты и разработчики, которые собирают продукты с помощью AI-инструментов.\n\nНапишите нам на hello@vibecast.one с темой «Эфир» — вернёмся с датами в течение пары дней.',
   },
   {
     id: 'contacts',
     title: 'Контакты',
-    body: 'Почта редакции: hello@vibecast.ru\n\nПо вопросам партнёрств и рекламы: partners@vibecast.ru\n\nTelegram: @vibecast',
+    body: 'Почта редакции: hello@vibecast.one\n\nПо вопросам партнёрств и витрины проектов: partners@vibecast.one\n\nTelegram: @vibecaast',
   },
 ]
 

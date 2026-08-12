@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: `${page.title} — vibecast`,
     description: page.body.split('\n\n')[0]?.slice(0, 160) ?? undefined,
+    alternates: { canonical: `/p/${encodeURIComponent(id)}` },
   }
 }
 

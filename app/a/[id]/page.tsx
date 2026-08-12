@@ -2,10 +2,13 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getArticle, getBroadcasts, getPages } from '@/lib/portal'
+import { getViewer } from '@/lib/viewer'
 import Header from '@/components/portal/Header'
 import Footer from '@/components/portal/Footer'
 import Avatar from '@/components/portal/Avatar'
 import ArticleBody from '@/components/portal/ArticleBody'
+import ShareArticle from '@/components/portal/ShareArticle'
+import { publicUrl } from '@/lib/site'
 
 // Контентом управляет админка — страницы обязаны рендериться на каждый
 // запрос. Иначе Next запекает их в статику на сборке и правки редакции
@@ -28,31 +31,42 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!article) return { title: 'Материал не найден — vibecast' }
 
   const cover = (article.coverSrc || '').trim()
+  const canonical = `/a/${encodeURIComponent(id)}`
+  const socialImage = publicUrl(cover || '/brand/vibecast-mark.png')
   return {
     title: `${article.title} — vibecast`,
     description: article.excerpt,
+    alternates: { canonical },
     openGraph: {
       type: 'article',
       title: article.title,
       description: article.excerpt,
       siteName: 'vibecast',
-      ...(cover ? { images: [cover] } : {}),
+      locale: 'ru_RU',
+      url: canonical,
+      images: [
+        {
+          url: socialImage,
+          alt: article.title,
+        },
+      ],
     },
     twitter: {
-      card: cover ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: article.title,
       description: article.excerpt,
-      ...(cover ? { images: [cover] } : {}),
+      images: [{ url: socialImage, alt: article.title }],
     },
   }
 }
 
 export default async function ArticlePage({ params }: Params) {
   const { id } = await params
-  const [article, broadcasts, pages] = await Promise.all([
+  const [article, broadcasts, pages, viewer] = await Promise.all([
     getArticle(id),
     getBroadcasts(),
     getPages(),
+    getViewer(),
   ])
   if (!article) notFound()
 
@@ -64,13 +78,13 @@ export default async function ArticlePage({ params }: Params) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header liveNow={liveNow} viewer={null} />
+      <Header liveNow={liveNow} viewer={viewer} />
 
       <main
         style={{
           flex: 1,
           width: '100%',
-          maxWidth: 920,
+          maxWidth: 860,
           margin: '0 auto',
           padding:
             'clamp(16px,2.5vw,26px) clamp(16px,4vw,40px) clamp(36px,5vw,56px)',
@@ -110,7 +124,7 @@ export default async function ArticlePage({ params }: Params) {
         </Link>
 
         <article
-          style={{ display: 'flex', flexDirection: 'column', gap: 22 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
         >
           <div
             style={{
@@ -153,8 +167,8 @@ export default async function ArticlePage({ params }: Params) {
           <h1
             style={{
               margin: 0,
-              fontSize: 'clamp(32px,4.6vw,56px)',
-              lineHeight: 0.98,
+              fontSize: 'clamp(32px,4.2vw,50px)',
+              lineHeight: 1.02,
               letterSpacing: '-.04em',
               fontWeight: 800,
               textWrap: 'balance',
@@ -166,10 +180,10 @@ export default async function ArticlePage({ params }: Params) {
           <p
             style={{
               margin: 0,
-              fontSize: 18,
-              lineHeight: 1.55,
+              fontSize: 17.5,
+              lineHeight: 1.58,
               color: '#5C5D52',
-              maxWidth: '64ch',
+              maxWidth: '60ch',
             }}
           >
             {article.excerpt}
@@ -194,6 +208,8 @@ export default async function ArticlePage({ params }: Params) {
           ) : null}
 
           <ArticleBody blocks={article.blocks} />
+
+          <ShareArticle title={article.title} />
         </article>
       </main>
 

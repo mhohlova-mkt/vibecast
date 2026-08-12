@@ -146,6 +146,29 @@
   color: #c93a2b;
 }
 
+/* Согласие на публикацию имени и фото. Форма светлая — цвета отсюда,
+   а не из тёмного EmailGate. */
+.check {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #57584a;
+  max-width: 58ch;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin: 1px 0 0;
+  accent-color: var(--accent, #cbf54a);
+  cursor: pointer;
+}
+
 .actions {
   display: flex;
   flex-direction: column;

@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/db'
 import { getViewer } from '@/lib/viewer'
 import { rateLimit, requireUser } from '@/lib/auth'
+import { isChecked, logConsent } from '@/lib/consent'
 import { revalidatePath } from 'next/cache'
 
 export type SubmitState = { error?: string; ok?: boolean } | undefined
@@ -52,6 +53,10 @@ export async function submitNews(
   const text = String(fd.get('text') ?? '').trim()
   const authorPhoto = String(fd.get('authorPhoto') ?? '').trim()
 
+  if (!isChecked(fd, 'consentPub')) {
+    return { error: 'Отметьте согласие на публикацию — без него мы не можем опубликовать материал' }
+  }
+
   if (authorName.length < 2) return { error: 'Укажите имя' }
   if (title.length < MIN_TITLE) return { error: 'Заголовок слишком короткий' }
   if (text.length < MIN_TEXT)
@@ -81,6 +86,13 @@ export async function submitNews(
       text,
       images: JSON.stringify(images),
     },
+  })
+
+  await logConsent({
+    email: viewer.email,
+    kind: 'pub',
+    granted: true,
+    source: 'suggest',
   })
 
   revalidatePath('/admin/submissions')

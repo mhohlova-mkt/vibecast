@@ -5,10 +5,18 @@ import { normalizeEmbedUrl } from './embed'
 /** Единый контракт данных для всех экранов портала. */
 
 export type ArticleBlock =
-  | { type: 'text'; content: string }
+  | { type: 'text'; content: string; style?: 'body' | 'lead' }
+  | { type: 'heading'; content: string; level?: 2 | 3 }
+  | { type: 'list'; content: string; ordered?: boolean }
   | { type: 'quote'; content: string; caption?: string }
+  | {
+      type: 'callout'
+      content: string
+      tone?: 'note' | 'key' | 'warning'
+    }
   | { type: 'image'; content: string; caption?: string }
   | { type: 'video'; content?: string; url: string; caption?: string }
+  | { type: 'divider' }
 
 export type CategoryView = { id: string; name: string; bg: string; text: string }
 

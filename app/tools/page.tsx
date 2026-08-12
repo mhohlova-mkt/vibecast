@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'Инструменты для вайбкодинга — vibecast',
   description:
     'Разборы инструментов для вайбкодинга и AI-разработки: что выбрать и как применить.',
+  alternates: { canonical: '/tools' },
 }
 
 export default async function ToolsPage() {

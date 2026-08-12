@@ -76,9 +76,12 @@ export default function LiveChat({
   }, [broadcastId])
 
   useEffect(() => {
-    void load()
+    const first = window.setTimeout(load, 0)
     const t = setInterval(load, POLL_MS)
-    return () => clearInterval(t)
+    return () => {
+      window.clearTimeout(first)
+      clearInterval(t)
+    }
   }, [load])
 
   // Держим ленту прокрученной вниз, но не мешаем читать историю.

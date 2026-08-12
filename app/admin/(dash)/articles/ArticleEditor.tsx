@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { saveArticle } from '@/lib/actions/admin'
 import type { ArticleBlock } from '@/lib/portal'
+import styles from './ArticleEditor.module.css'
+import ArticleContentEditor from './ArticleContentEditor'
 
 /**
  * Редактор статьи: шапка, обложка, блочный контент.
@@ -30,13 +32,6 @@ const SECS = [
   { key: 'tools', label: 'Инструменты' },
   { key: 'learn', label: 'Обучение' },
 ] as const
-
-const BLOCK_LABEL: Record<ArticleBlock['type'], string> = {
-  text: 'Текст',
-  quote: 'Цитата',
-  image: 'Фото',
-  video: 'Видео',
-}
 
 const field: React.CSSProperties = {
   background: '#F4F3EC',
@@ -105,34 +100,8 @@ export default function ArticleEditor({
     setRatio(up.ratio ?? '')
   }
 
-  function addBlock(type: ArticleBlock['type']) {
-    const fresh: ArticleBlock =
-      type === 'video'
-        ? { type: 'video', url: '', caption: '' }
-        : type === 'text'
-          ? { type: 'text', content: '' }
-          : { type, content: '', caption: '' }
-    setBlocks((b) => [...b, fresh])
-  }
-
-  function patch(i: number, next: Partial<ArticleBlock>) {
-    setBlocks((b) =>
-      b.map((x, j) => (j === i ? ({ ...x, ...next } as ArticleBlock) : x)),
-    )
-  }
-
-  function move(i: number, dir: -1 | 1) {
-    setBlocks((b) => {
-      const j = i + dir
-      if (j < 0 || j >= b.length) return b
-      const copy = [...b]
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-      return copy
-    })
-  }
-
   return (
-    <form action={saveArticle} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <form action={saveArticle} className={styles.form}>
       {draft.id ? <input type="hidden" name="id" value={draft.id} /> : null}
       <input type="hidden" name="sec" value={sec} />
       <input type="hidden" name="coverSrc" value={cover} />
@@ -287,113 +256,16 @@ export default function ArticleEditor({
         </div>
       </section>
 
-      <section style={card}>
-        <span style={label}>Содержимое</span>
-
-        {blocks.map((b, i) => (
-          <div
-            key={i}
-            style={{
-              border: '1px solid var(--line)',
-              borderRadius: 14,
-              padding: 14,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-              background: '#FCFCF9',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="mono" style={{ fontSize: 10, letterSpacing: '.1em', color: 'var(--muted)' }}>
-                {BLOCK_LABEL[b.type].toUpperCase()}
-              </span>
-              <div style={{ flex: 1 }} />
-              <button type="button" onClick={() => move(i, -1)} aria-label="Выше" style={iconBtn}>
-                ↑
-              </button>
-              <button type="button" onClick={() => move(i, 1)} aria-label="Ниже" style={iconBtn}>
-                ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => setBlocks((x) => x.filter((_, j) => j !== i))}
-                aria-label="Удалить блок"
-                style={iconBtn}
-              >
-                ✕
-              </button>
-            </div>
-
-            {b.type === 'text' || b.type === 'quote' ? (
-              <textarea
-                value={b.content}
-                onChange={(e) => patch(i, { content: e.target.value })}
-                rows={b.type === 'quote' ? 2 : 5}
-                placeholder={b.type === 'quote' ? 'Цитата' : 'Текст абзаца'}
-                style={{ ...field, resize: 'vertical', lineHeight: 1.6 }}
-              />
-            ) : null}
-
-            {b.type === 'image' ? (
-              <>
-                {b.content ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={b.content} alt="" style={{ maxWidth: '100%', borderRadius: 10 }} />
-                ) : null}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const f = e.target.files?.[0]
-                    if (!f) return
-                    const up = await upload(f)
-                    if (up) patch(i, { content: up.src })
-                  }}
-                  style={{ fontSize: 13 }}
-                />
-              </>
-            ) : null}
-
-            {b.type === 'video' ? (
-              <input
-                value={b.url}
-                onChange={(e) => patch(i, { url: e.target.value })}
-                placeholder="Ссылка на видео (VK Видео, Rutube, YouTube)"
-                style={field}
-              />
-            ) : null}
-
-            {b.type !== 'text' ? (
-              <input
-                value={b.caption ?? ''}
-                onChange={(e) => patch(i, { caption: e.target.value })}
-                placeholder="Подпись (необязательно)"
-                style={{ ...field, fontSize: 13 }}
-              />
-            ) : null}
+      <section className={styles.contentCard}>
+        <div className={styles.contentHead}>
+          <div>
+            <span style={label}>Текст статьи</span>
+            <p className={styles.contentHint}>
+              Одно поле для всего материала. Выделите текст и используйте панель форматирования.
+            </p>
           </div>
-        ))}
-
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {(Object.keys(BLOCK_LABEL) as ArticleBlock['type'][]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => addBlock(t)}
-              style={{
-                border: '1px solid #C9C8BC',
-                background: 'transparent',
-                borderRadius: 'var(--r-pill)',
-                padding: '9px 18px',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              + {BLOCK_LABEL[t]}
-            </button>
-          ))}
         </div>
+        <ArticleContentEditor initialBlocks={draft.blocks} onChange={setBlocks} upload={upload} />
       </section>
 
       {error ? (
@@ -441,15 +313,4 @@ export default function ArticleEditor({
       </div>
     </form>
   )
-}
-
-const iconBtn: React.CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 8,
-  border: '1px solid var(--line)',
-  background: '#fff',
-  cursor: 'pointer',
-  fontSize: 13,
-  color: 'var(--muted)',
 }

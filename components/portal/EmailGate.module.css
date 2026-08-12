@@ -73,24 +73,40 @@
   cursor: progress;
 }
 
-.consent {
+/* Галочки согласий. Обе одинаковые на вид: обязательность обработки данных
+   выражена через required, а не через размер шрифта — подсвечивать одну
+   и прятать другую было бы подталкиванием. */
+.check {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
   font-size: 12.5px;
   line-height: 1.5;
-  color: #6b6c60;
+  color: #8b8c7e;
   max-width: 52ch;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin: 1px 0 0;
+  accent-color: var(--accent, #cbf54a);
+  cursor: pointer;
+}
+
+.check a {
+  color: #a9b29c;
+  text-decoration: underline;
+}
+
+.check a:hover {
+  color: var(--accent, #cbf54a);
 }
 
 .error {
   font-size: 12.5px;
   font-weight: 600;
   color: #ff7a6b;
-}
-
-.consent a {
-  color: #a9b29c;
-  text-decoration: underline;
-}
-
-.consent a:hover {
-  color: var(--accent, #cbf54a);
 }

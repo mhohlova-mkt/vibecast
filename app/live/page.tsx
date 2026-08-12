@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: 'Вебинары и прямые эфиры — vibecast',
   description:
     'Прямые эфиры с практиками вайбкодинга и архив прошедших вебинаров в записи.',
+  alternates: { canonical: '/live' },
 }
 
 const MONTHS = [

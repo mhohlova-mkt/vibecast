@@ -1,188 +1,117 @@
 import type { ArticleBlock } from '@/lib/portal'
+import { RichText } from './RichText'
+import styles from './ArticleBody.module.css'
 
-/**
- * Рендер блочного контента статьи. 1:1 с прототипом
- * («Портал vibecast 2.0.dc.html», секция isArticle).
- * Переиспользуется на публичной статье и в предпросмотре админки.
- */
-
-const wrap: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 10,
-}
-
-function TextBlock({ content }: { content: string }) {
+function TextBlock({
+  content,
+  style = 'body',
+}: {
+  content: string
+  style?: 'body' | 'lead'
+}) {
+  const paragraphs = content.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean)
   return (
-    <p
-      style={{
-        margin: 0,
-        fontSize: 17.5,
-        lineHeight: 1.7,
-        color: '#3A3B30',
-        whiteSpace: 'pre-wrap',
-      }}
-    >
-      {content}
-    </p>
+    <div className={style === 'lead' ? styles.lead : styles.text}>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index}>
+          {paragraph.split('\n').map((line, lineIndex) => (
+            <span key={lineIndex}>
+              {lineIndex > 0 ? <br /> : null}
+              <RichText content={line} />
+            </span>
+          ))}
+        </p>
+      ))}
+    </div>
   )
 }
 
 function QuoteBlock({ content, caption }: { content: string; caption?: string }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-        borderLeft: '4px solid var(--accent, #CBF54A)',
-        padding: '6px 0 6px 18px',
-      }}
-    >
-      <p
-        style={{
-          margin: 0,
-          fontSize: 22,
-          lineHeight: 1.4,
-          fontWeight: 700,
-          fontStyle: 'italic',
-          letterSpacing: '-.01em',
-        }}
-      >
-        {content}
-      </p>
-      {caption && caption.trim() ? (
-        <span
-          className="mono"
-          style={{
-            fontSize: 12,
-            color: '#6B6C60',
-            textTransform: 'none',
-            letterSpacing: 0,
-            fontWeight: 400,
-          }}
-        >
-          — {caption}
-        </span>
-      ) : null}
-    </div>
+    <blockquote className={styles.quote}>
+      <p><RichText content={content} /></p>
+      {caption?.trim() ? <cite>— {caption}</cite> : null}
+    </blockquote>
   )
 }
 
 function ImageBlock({ content, caption }: { content: string; caption?: string }) {
-  const src = (content || '').trim()
+  const src = content.trim()
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <figure className={styles.figure}>
       {src ? (
-        <div
-          style={{
-            width: '100%',
-            aspectRatio: '16 / 9',
-            borderRadius: 16,
-            background: `url("${src}") center/cover no-repeat`,
-          }}
-        />
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={caption?.trim() || ''} />
       ) : (
-        <div
-          style={{
-            width: '100%',
-            aspectRatio: '16 / 9',
-            borderRadius: 16,
-            background: '#ECEBE2',
-          }}
-        />
+        <div className={styles.imagePlaceholder} />
       )}
-      {caption && caption.trim() ? (
-        <span style={{ fontSize: 13, color: '#9A9B8E' }}>{caption}</span>
-      ) : null}
-    </div>
+      {caption?.trim() ? <figcaption>{caption}</figcaption> : null}
+    </figure>
   )
 }
 
-function VideoBlock({ url }: { url: string }) {
+function VideoBlock({ url, caption }: { url: string; caption?: string }) {
+  const href = url.trim()
+  if (!href) return null
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        background: '#15160F',
-        borderRadius: 18,
-        padding: '18px 20px',
-        color: '#F4F3EC',
-        textDecoration: 'none',
-      }}
-    >
-      <span
-        style={{
-          width: 46,
-          height: 46,
-          borderRadius: '50%',
-          background: 'var(--accent, #CBF54A)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="#15160F">
+    <a href={href} target="_blank" rel="noopener noreferrer" className={styles.video}>
+      <span className={styles.play} aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
       </span>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3,
-          minWidth: 0,
-        }}
-      >
-        <span style={{ fontSize: 15, fontWeight: 700 }}>Смотреть видео</span>
-        <span
-          className="mono"
-          style={{
-            fontSize: 11.5,
-            color: '#A9B29C',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            textTransform: 'none',
-            letterSpacing: 0,
-            fontWeight: 400,
-          }}
-        >
-          {url}
-        </span>
-      </div>
+      <span className={styles.videoCopy}>
+        <strong>{caption?.trim() || 'Смотреть видео'}</strong>
+        <span className="mono">{href}</span>
+      </span>
     </a>
+  )
+}
+
+function ListBlock({ content, ordered }: { content: string; ordered?: boolean }) {
+  const items = content
+    .split('\n')
+    .map((item) => item.replace(/^\s*(?:[-–—•]|\d+[.)])\s*/, '').trim())
+    .filter(Boolean)
+  const Tag = ordered ? 'ol' : 'ul'
+  return (
+    <Tag className={styles.list}>
+      {items.map((item, index) => <li key={index}><RichText content={item} /></li>)}
+    </Tag>
   )
 }
 
 export default function ArticleBody({ blocks }: { blocks: ArticleBlock[] }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 22,
-        maxWidth: 760,
-      }}
-    >
-      {blocks.map((b, i) => (
-        <div key={i} style={wrap}>
-          {b.type === 'text' ? <TextBlock content={b.content} /> : null}
-          {b.type === 'quote' ? (
-            <QuoteBlock content={b.content} caption={b.caption} />
-          ) : null}
-          {b.type === 'image' ? (
-            <ImageBlock content={b.content} caption={b.caption} />
-          ) : null}
-          {b.type === 'video' ? <VideoBlock url={b.url} /> : null}
-        </div>
-      ))}
+    <div className={styles.root}>
+      {blocks.map((block, index) => {
+        switch (block.type) {
+          case 'text':
+            return <TextBlock key={index} content={block.content} style={block.style} />
+          case 'heading': {
+            const Tag = block.level === 3 ? 'h3' : 'h2'
+            return <Tag key={index} className={styles.heading}><RichText content={block.content} /></Tag>
+          }
+          case 'list':
+            return <ListBlock key={index} content={block.content} ordered={block.ordered} />
+          case 'quote':
+            return <QuoteBlock key={index} content={block.content} caption={block.caption} />
+          case 'callout':
+            return (
+              <aside key={index} className={`${styles.callout} ${styles[block.tone ?? 'note']}`}>
+                <RichText content={block.content} />
+              </aside>
+            )
+          case 'image':
+            return <ImageBlock key={index} content={block.content} caption={block.caption} />
+          case 'video':
+            return <VideoBlock key={index} url={block.url} caption={block.caption} />
+          case 'divider':
+            return <hr key={index} className={styles.divider} />
+          default:
+            return null
+        }
+      })}
     </div>
   )
 }

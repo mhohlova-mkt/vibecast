@@ -23,8 +23,21 @@
   border-bottom: 1px solid #2a2b22;
 }
 
+.footerBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 24px);
+  min-width: 0;
+}
+
+.footerMark {
+  width: clamp(48px, 7vw, 84px);
+  height: clamp(48px, 7vw, 84px);
+  object-fit: contain;
+  flex: none;
+}
+
 .logo {
-  margin: 0;
   font-size: clamp(40px, 8vw, 108px);
   font-weight: 800;
   letter-spacing: -0.05em;
@@ -112,7 +125,56 @@
 
 .subForm {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Поле и кнопка остались в строку — колонкой стала сама форма,
+   чтобы под ними поместилась галочка согласия. */
+.subRow {
+  display: flex;
   gap: 8px;
+}
+
+.subCheck {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #6b6c60;
+  cursor: pointer;
+}
+
+.subCheck input {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 1px 0 0;
+  accent-color: var(--accent, #cbf54a);
+  cursor: pointer;
+}
+
+.subCheck a {
+  color: #a9b29c;
+  text-decoration: underline;
+}
+
+.subCheck a:hover {
+  color: var(--accent, #cbf54a);
+}
+
+.subDone {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--accent, #cbf54a);
+}
+
+.subError {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #ff7a6b;
 }
 
 .subInput {
@@ -157,8 +219,37 @@
   padding-top: clamp(24px, 3vw, 34px);
 }
 
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+}
+
+.groupLink {
+  color: inherit;
+  text-decoration-color: #4a4b40;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.groupLink:hover {
+  color: #a9b29c;
+}
+
 .built {
   font-family: var(--font-mono), 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 560px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+
+  .about,
+  .sub {
+    min-width: 0;
+  }
 }
 
 /* ── Каналы проекта ── */

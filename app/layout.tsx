@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Geologica, JetBrains_Mono } from 'next/font/google'
+import { SITE_ORIGIN, SITE_URL } from '@/lib/site'
 import './globals.css'
 
 // Geologica — гротеск с полной кириллицей. Пришла на смену Archivo из
@@ -20,9 +21,35 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: SITE_URL,
   title: 'vibecast — медиа и вебинары про вайбкодинг',
   description:
     'Прямые эфиры с практиками, разборы инструментов и учебные материалы об IT и AI-разработке.',
+  applicationName: 'vibecast',
+  openGraph: {
+    type: 'website',
+    locale: 'ru_RU',
+    siteName: 'vibecast',
+    title: 'vibecast — медиа и вебинары про вайбкодинг',
+    description:
+      'Прямые эфиры с практиками, разборы инструментов и учебные материалы об IT и AI-разработке.',
+    url: SITE_ORIGIN,
+    images: [
+      {
+        url: '/brand/vibecast-mark.png',
+        width: 1024,
+        height: 1024,
+        alt: 'vibecast',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'vibecast — медиа и вебинары про вайбкодинг',
+    description:
+      'Прямые эфиры с практиками, разборы инструментов и учебные материалы об IT и AI-разработке.',
+    images: ['/brand/vibecast-mark.png'],
+  },
 }
 
 export default function RootLayout({

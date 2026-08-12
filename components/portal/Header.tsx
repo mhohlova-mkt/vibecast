@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { setDigest } from '@/lib/actions/viewer'
 import styles from './Header.module.css'
 
 type HeaderProps = {
@@ -32,12 +33,20 @@ function emailInitials(email: string): string {
 export default function Header({ liveNow, viewer }: HeaderProps) {
   const pathname = usePathname() ?? '/'
   const [menuOpen, setMenuOpen] = useState(false)
+  const isArticlePage = pathname.startsWith('/a/')
 
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/" className={styles.brand} aria-label="vibecast — на главную">
-          <span className={styles.brandMark}>&lt;/&gt;</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/vibecast-mark.png"
+            alt=""
+            width="36"
+            height="36"
+            className={styles.brandMark}
+          />
           <span className={styles.brandName}>vibecast</span>
         </Link>
 
@@ -63,7 +72,7 @@ export default function Header({ liveNow, viewer }: HeaderProps) {
             </Link>
           ) : null}
 
-          <button type="button" className={styles.iconBtn} aria-label="Поиск">
+          <Link href="/search" className={styles.iconBtn} aria-label="Поиск">
             <svg
               width="18"
               height="18"
@@ -76,9 +85,17 @@ export default function Header({ liveNow, viewer }: HeaderProps) {
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.2-3.2" />
             </svg>
-          </button>
+          </Link>
 
-          {viewer ? (
+          {viewer && isArticlePage ? (
+            <span
+              className={`${styles.viewerAvatar} ${styles.viewerAvatarOnly}`}
+              aria-label="Вы вошли на сайт"
+              title="Вы вошли на сайт"
+            >
+              {emailInitials(viewer.email)}
+            </span>
+          ) : viewer ? (
             <div
               className={styles.viewerChip}
               title={`${viewer.email} · дайджест ${
@@ -89,6 +106,29 @@ export default function Header({ liveNow, viewer }: HeaderProps) {
                 {emailInitials(viewer.email)}
               </span>
               <span className={styles.viewerEmail}>{viewer.email}</span>
+
+              {/* Та самая отписка в один клик, которую обещают форма доступа
+                  и политика обработки данных. Обещание должно быть исполнимо
+                  на сайте, а не только ссылкой в письме. */}
+              {/* Поле шлём только когда хотим включить: setDigest читает сам
+                  факт наличия `digest` в форме, как обычную галочку. */}
+              <form action={setDigest}>
+                {viewer.digest ? null : (
+                  <input type="hidden" name="digest" value="on" />
+                )}
+                <button
+                  type="submit"
+                  className={styles.viewerDigest}
+                  data-on={viewer.digest ? '' : undefined}
+                  title={
+                    viewer.digest
+                      ? 'Дайджест включён — нажмите, чтобы отписаться'
+                      : 'Дайджест выключен — нажмите, чтобы подписаться'
+                  }
+                >
+                  {viewer.digest ? 'дайджест вкл' : 'дайджест выкл'}
+                </button>
+              </form>
             </div>
           ) : null}
 

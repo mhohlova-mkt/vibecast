@@ -119,12 +119,41 @@ model Page {
 }
 
 /// Подписчик/зритель. Регистрация без пароля: имя + email.
+///
+/// `digest` — текущее состояние согласия на рассылку, отдельное от согласия
+/// на обработку данных. По умолчанию false: подписка только если человек
+/// сам поставил галочку. Доказательства согласия — в модели Consent.
 model Subscriber {
   id        String   @id @default(cuid())
   name      String   @default("")
   email     String   @unique
   digest    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+/// Журнал согласий. Только дописывается, ничего не редактируется и не
+/// удаляется: если придёт жалоба, доказывать согласие должны мы, а «человек
+/// поставил галочку» без даты, адреса и текста, который ему показали, —
+/// не доказательство.
+///
+/// kind: pd — обработка персональных данных (152-ФЗ),
+///       ads — рекламная рассылка (38-ФЗ, ст. 18),
+///       pub — публикация имени, фото и текста автора новости.
+/// granted: true — дал согласие, false — отозвал.
+/// source: gate | footer | suggest | admin | viewer — где именно это произошло.
+model Consent {
+  id        String   @id @default(cuid())
+  email     String
+  kind      String
+  granted   Boolean
+  /// Формулировка, которую человек видел в момент согласия, дословно.
+  text      String   @default("")
+  ip        String   @default("")
+  userAgent String   @default("")
+  source    String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([email, kind, createdAt])
 }
 
 /// Одна строка (id = "home"): настройки главной.

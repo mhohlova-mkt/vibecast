@@ -1,10 +1,9 @@
 import Link from 'next/link'
+import FooterSubscribe from './FooterSubscribe'
 import styles from './Footer.module.css'
 
 type FooterProps = {
   pages: { id: string; title: string }[]
-  /** Server action подписки. Если не передан — форма постит на /api/subscribe. */
-  subscribeAction?: (formData: FormData) => void | Promise<void>
 }
 
 /** Каналы проекта. Иконки рисуем сами — сторонние наборы тянуть незачем. */
@@ -37,16 +36,16 @@ const SECTIONS = [
   { href: '/suggest', label: 'Предложить новость' },
 ] as const
 
-export default function Footer({ pages, subscribeAction }: FooterProps) {
-  const formProps: React.ComponentProps<'form'> = subscribeAction
-    ? { action: subscribeAction }
-    : { action: '/api/subscribe', method: 'post' }
-
+export default function Footer({ pages }: FooterProps) {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.top}>
-          <h2 className={styles.logo}>vibecast</h2>
+          <Link href="/" className={styles.footerBrand} aria-label="vibecast — на главную">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/vibecast-mark.png" alt="" className={styles.footerMark} />
+            <span className={styles.logo}>vibecast</span>
+          </Link>
           <span className={styles.topArrow} aria-hidden="true">
             <svg
               width="34"
@@ -111,24 +110,25 @@ export default function Footer({ pages, subscribeAction }: FooterProps) {
             <p className={styles.subText}>
               Дайджест эфиров и материалов раз в неделю
             </p>
-            <form {...formProps} className={styles.subForm}>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="e-mail"
-                aria-label="e-mail"
-                className={styles.subInput}
-              />
-              <button type="submit" className={styles.subBtn}>
-                ОК
-              </button>
-            </form>
+            <FooterSubscribe />
           </div>
         </div>
 
         <div className={styles.bottom}>
-          <span>© 2026 vibecast · Все права защищены</span>
+          <div className={styles.legal}>
+            <span>© 2026 vibecast · Все права защищены</span>
+            <span>
+              Vibecast — проект группы компаний Баксэт ·{' '}
+              <a
+                href="https://baxet.ru"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.groupLink}
+              >
+                baxet.ru
+              </a>
+            </span>
+          </div>
           <span className={styles.built}>built with vibes ✦</span>
         </div>
       </div>

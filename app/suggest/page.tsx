@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: 'Предложить новость — vibecast',
   description:
     'Расскажите о том, что происходит в IT и вайбкодинге. Редакция прочитает и опубликует под вашим именем.',
+  alternates: { canonical: '/suggest' },
 }
 
 export default async function SuggestPage() {

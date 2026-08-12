@@ -2,8 +2,8 @@ import type { HomeView } from '@/lib/portal'
 import styles from './Banner.module.css'
 
 /**
- * Рекламный баннер главной (110px). Приоритет — HTML-код из админки,
- * иначе картинка со ссылкой, иначе плашка «место под баннер».
+ * Витрина проектов группы (110px). Приоритет — HTML-код из админки,
+ * иначе картинка со ссылкой, иначе нейтральная заглушка.
  */
 
 export default function Banner({ banner }: { banner: HomeView['banner'] }) {
@@ -31,7 +31,7 @@ export default function Banner({ banner }: { banner: HomeView['banner'] }) {
       href={banner.link || '#'}
       target="_blank"
       rel="noopener noreferrer nofollow"
-      title="Реклама"
+      title="Проект группы Баксэт"
       style={
         src && !isVideo
           ? { background: `url("${src}") center/cover no-repeat` }
@@ -53,7 +53,7 @@ export default function Banner({ banner }: { banner: HomeView['banner'] }) {
       ) : null}
 
       {src ? null : (
-        <span className={styles.placeholder}>МЕСТО ПОД БАННЕР</span>
+        <span className={styles.placeholder}>ВИТРИНА ПРОЕКТОВ</span>
       )}
     </a>
   )

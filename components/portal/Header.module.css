@@ -24,7 +24,7 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 9px;
   border: none;
   background: none;
   cursor: pointer;
@@ -33,17 +33,11 @@
 }
 
 .brandMark {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: var(--accent, #cbf54a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono), 'JetBrains Mono', monospace;
-  font-weight: 600;
-  font-size: 15px;
-  color: #15160f;
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(44, 62, 20, 0.16));
 }
 
 .brandName {
@@ -131,9 +125,9 @@
   gap: 8px;
   border: 1px solid #15160f;
   background: transparent;
-  padding: 5px 14px 5px 5px;
+  padding: 5px 6px 5px 5px;
   border-radius: 999px;
-  max-width: 240px;
+  max-width: 320px;
   min-width: 0;
 }
 
@@ -151,6 +145,13 @@
   color: #15160f;
 }
 
+.viewerAvatarOnly {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #15160f;
+  font-size: 12px;
+}
+
 .viewerEmail {
   font-size: 14px;
   font-weight: 700;
@@ -159,6 +160,29 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+/* Переключатель дайджеста прямо в чипе. Выключенное состояние не прячем:
+   человек должен видеть, подписан он сейчас или нет. */
+.viewerDigest {
+  border: 1px solid #c9c8ba;
+  background: transparent;
+  color: #6b6c60;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.viewerDigest[data-on] {
+  border-color: #15160f;
+  background: var(--accent, #cbf54a);
+  color: #15160f;
+  font-weight: 700;
 }
 
 /* --- Бургер: в прототипе мобильного меню нет, добавлено для узких экранов --- */

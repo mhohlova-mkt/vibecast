@@ -2,12 +2,16 @@
 
 import { useActionState } from 'react'
 import { registerViewer, type ViewerFormState } from '@/lib/actions/viewer'
+import { CONSENT_PD_PARTS, CONSENT_TEXT } from '@/lib/consent.texts'
 import styles from './EmailGate.module.css'
 
 /**
  * Доступ к материалам в обмен на почту. Ни аккаунтов, ни паролей:
- * зритель оставляет e-mail, подписывается на рассылку и сразу
- * получает доступ к эфиру и архиву записей.
+ * зритель оставляет e-mail и сразу получает доступ к эфиру и архиву.
+ *
+ * Галочки две и они разные по смыслу. Обработка данных обязательна —
+ * без неё почту нельзя даже сохранить. Рассылка необязательна и снята
+ * по умолчанию: доступ к эфиру от неё не зависит, и связывать их нельзя.
  *
  * `tone="dark"` — на тёмной секции «сейчас эфира нет»,
  * `tone="overlay"` — поверх плеера.
@@ -53,14 +57,21 @@ export default function EmailGate({
         </button>
       </div>
 
-      <span className={styles.consent}>
-        Оставляя почту, вы подписываетесь на дайджест и напоминания об эфирах
-        и соглашаетесь с{' '}
-        <a href="/p/privacy" target="_blank" rel="noopener noreferrer">
-          обработкой данных
-        </a>
-        . Отписаться можно в один клик.
-      </span>
+      <label className={styles.check}>
+        <input type="checkbox" name="consentPd" required />
+        <span>
+          {CONSENT_PD_PARTS.before}
+          <a href="/p/privacy" target="_blank" rel="noopener noreferrer">
+            {CONSENT_PD_PARTS.link}
+          </a>
+          {CONSENT_PD_PARTS.after}
+        </span>
+      </label>
+
+      <label className={styles.check}>
+        <input type="checkbox" name="consentAds" />
+        <span>{CONSENT_TEXT.ads}</span>
+      </label>
 
       {state?.error ? <span className={styles.error}>{state.error}</span> : null}
     </form>

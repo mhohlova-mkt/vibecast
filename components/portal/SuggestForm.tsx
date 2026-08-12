@@ -1,7 +1,8 @@
 'use client'
 
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useState } from 'react'
 import { submitNews, type SubmitState } from '@/lib/actions/submissions'
+import { CONSENT_TEXT } from '@/lib/consent.texts'
 import styles from './SuggestForm.module.css'
 
 /** Форма «предложить новость». Доступна тем, кто оставил почту. */
@@ -11,11 +12,14 @@ export default function SuggestForm({ email }: { email: string }) {
     submitNews,
     undefined,
   )
-  const startedAt = useRef(Date.now())
   const [photo, setPhoto] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  function stampStart(node: HTMLInputElement | null) {
+    if (node && !node.value) node.value = String(Date.now())
+  }
 
   async function upload(file: File) {
     setBusy(true)
@@ -50,7 +54,7 @@ export default function SuggestForm({ email }: { email: string }) {
 
   return (
     <form action={action} className={styles.form}>
-      <input type="hidden" name="startedAt" value={startedAt.current} />
+      <input ref={stampStart} type="hidden" name="startedAt" defaultValue="" />
       <input type="hidden" name="authorPhoto" value={photo} />
       <input type="hidden" name="images" value={JSON.stringify(images)} />
 
@@ -153,6 +157,14 @@ export default function SuggestForm({ email }: { email: string }) {
         }}
       />
       <span className={styles.hint}>До восьми картинок, каждая до 8 МБ.</span>
+
+      {/* Материал публикуется под настоящим именем и с фотографией автора,
+          поэтому согласие на публикацию берём явно, а не выводим из факта
+          отправки формы. */}
+      <label className={styles.check}>
+        <input type="checkbox" name="consentPub" required />
+        <span>{CONSENT_TEXT.pub}</span>
+      </label>
 
       {uploadError ? <span className={styles.error}>{uploadError}</span> : null}
       {state?.error ? <span className={styles.error}>{state.error}</span> : null}

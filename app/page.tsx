@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import {
   getBroadcasts,
   getHome,
@@ -5,6 +6,7 @@ import {
   getPublishedArticles,
   pickPromo,
 } from '@/lib/portal'
+import { getViewer } from '@/lib/viewer'
 import Header from '@/components/portal/Header'
 import Footer from '@/components/portal/Footer'
 import Hero from '@/components/portal/Hero'
@@ -20,13 +22,18 @@ import styles from './home.module.css'
 // на сайте не появляются.
 export const dynamic = 'force-dynamic'
 
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+}
+
 
 export default async function Home() {
-  const [home, feed, broadcasts, pages] = await Promise.all([
+  const [home, feed, broadcasts, pages, viewer] = await Promise.all([
     getHome(),
     getPublishedArticles('feed'),
     getBroadcasts(),
     getPages(),
+    getViewer(),
   ])
 
   // Закреп из админки; если статья снята с публикации — берём свежайшую.
@@ -38,7 +45,7 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
-      <Header liveNow={liveNow} viewer={null} />
+      <Header liveNow={liveNow} viewer={viewer} />
 
       <main style={{ flex: 1 }}>
         <section className={styles.heroSection}>

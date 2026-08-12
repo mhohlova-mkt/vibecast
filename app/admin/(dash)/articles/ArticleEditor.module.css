@@ -1,0 +1,347 @@
+.form {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.contentCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  padding: 18px;
+}
+
+.contentHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.contentHint {
+  max-width: 64ch;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.singleEditor {
+  overflow: hidden;
+  border: 1px solid #c9c8bc;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.singleToolbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid #deddd2;
+  background: #f7f6f0;
+  padding: 8px;
+}
+
+.singleToolbar button {
+  min-height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  padding: 0 9px;
+  color: var(--dark);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.singleToolbar button:hover {
+  background: #e9e8df;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 24px;
+  align-self: center;
+  margin: 0 3px;
+  background: #d5d4c9;
+}
+
+.articleSource {
+  display: block;
+  width: 100%;
+  min-height: min(720px, 68vh);
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  background: #fff;
+  padding: 22px 24px;
+  color: #25261e;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.72;
+  tab-size: 2;
+}
+
+.articleSource:focus {
+  box-shadow: inset 0 0 0 2px rgb(159 190 62 / 42%);
+}
+
+.editorHelp {
+  border-top: 1px solid #deddd2;
+  background: #f7f6f0;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.hiddenFile {
+  display: none;
+}
+
+.pasteToggle,
+.primarySmall,
+.secondarySmall,
+.addButton,
+.addPrimary {
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pasteToggle {
+  flex: 0 0 auto;
+  border: 1px solid var(--dark);
+  background: var(--dark);
+  color: var(--dark-text);
+}
+
+.pastePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #cadb92;
+  border-radius: 14px;
+  background: #f7faec;
+  padding: 12px;
+}
+
+.pasteArea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  border: 1px solid #cfd0c4;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  padding: 14px 16px;
+  color: var(--dark);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.pasteArea:focus,
+.blockTextarea:focus {
+  border-color: #8cab2d !important;
+  box-shadow: 0 0 0 3px rgb(203 245 74 / 22%);
+}
+
+.pasteActions,
+.addBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.primarySmall,
+.addPrimary {
+  border: 1px solid var(--dark);
+  background: var(--dark);
+  color: var(--dark-text);
+}
+
+.secondarySmall,
+.addButton {
+  border: 1px solid #c9c8bc;
+  background: transparent;
+  color: var(--dark);
+}
+
+.blockList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border: 1px solid #deddd2;
+  border-radius: 12px;
+  background: #fcfcf9;
+  padding: 10px 12px 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.block:focus-within {
+  border-color: #b1b3a4;
+  box-shadow: 0 5px 18px rgb(21 22 15 / 6%);
+}
+
+.blockHead {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.blockLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+}
+
+.blockNumber {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: #ecebe2;
+  color: #67685d;
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+.blockActions {
+  display: flex;
+  gap: 4px;
+}
+
+.iconButton {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #67685d;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.iconButton:hover:not(:disabled) {
+  background: #ecebe2;
+  color: var(--dark);
+}
+
+.iconButton:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #fde7e2;
+  color: #b53f2f;
+}
+
+.richField {
+  overflow: hidden;
+  border: 1px solid #deddd2;
+  border-radius: 10px;
+  background: #f4f3ec;
+}
+
+.formatBar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid #deddd2;
+  background: #fff;
+  padding: 5px 6px;
+}
+
+.formatButton {
+  min-width: 30px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  padding: 0 8px;
+  color: var(--dark);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formatButton:hover {
+  background: #ecebe2;
+}
+
+.blockTextarea {
+  display: block;
+  min-height: 94px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: none;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 12px 14px !important;
+  font-size: 15px !important;
+}
+
+.emptyBlocks {
+  border: 1px dashed #c9c8bc;
+  border-radius: 12px;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.addBar {
+  border-top: 1px solid var(--line);
+  padding-top: 13px;
+}
+
+.addButton,
+.addPrimary {
+  padding: 8px 13px;
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .contentCard {
+    border-radius: 14px;
+    padding: 13px;
+  }
+
+  .contentHead {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pasteToggle {
+    align-self: stretch;
+  }
+}

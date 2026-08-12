@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'Обучение и разборы — vibecast',
   description:
     'Учебные материалы, разборы и практика по IT, вайбкодингу и AI-разработке.',
+  alternates: { canonical: '/learn' },
 }
 
 /** Дефолты закрепа EdMe — 1:1 из прототипа (на случай пустых полей в БД). */
@@ -118,7 +119,7 @@ export default async function LearnPage() {
                     borderRadius: 999,
                   }}
                 >
-                  ПАРТНЁРСКИЙ ПРОЕКТ
+                  ПРОЕКТ ГРУППЫ
                 </span>
               </div>
 

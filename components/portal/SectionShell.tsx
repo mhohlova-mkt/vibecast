@@ -1,4 +1,5 @@
 import { getBroadcasts, getPages } from '@/lib/portal'
+import { getViewer } from '@/lib/viewer'
 import Header from './Header'
 import Footer from './Footer'
 
@@ -19,7 +20,13 @@ export default async function SectionShell({
   kicker,
   children,
 }: SectionShellProps) {
-  const [broadcasts, pages] = await Promise.all([getBroadcasts(), getPages()])
+  // Зритель нужен ради переключателя дайджеста в шапке: отписаться человек
+  // должен уметь с любой страницы, а не только со страницы эфира.
+  const [broadcasts, pages, viewer] = await Promise.all([
+    getBroadcasts(),
+    getPages(),
+    getViewer(),
+  ])
   const liveNow = broadcasts.some((b) => b.status === 'live')
 
   return (
@@ -30,7 +37,7 @@ export default async function SectionShell({
         minHeight: '100vh',
       }}
     >
-      <Header liveNow={liveNow} viewer={null} />
+      <Header liveNow={liveNow} viewer={viewer} />
 
       <main
         style={{
@@ -67,7 +74,7 @@ export default async function SectionShell({
               {kicker}
             </span>
           ) : null}
-          <h2
+          <h1
             style={{
               margin: 0,
               fontSize: 'clamp(28px,4vw,46px)',
@@ -77,7 +84,7 @@ export default async function SectionShell({
             }}
           >
             {title}
-          </h2>
+          </h1>
         </div>
 
         {children}
