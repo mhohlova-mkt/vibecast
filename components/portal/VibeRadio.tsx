@@ -33,10 +33,10 @@ type ModeCopy = {
 const MODES: Record<Scene, ModeCopy> = {
   rain: {
     label: 'Дождь',
-    note: 'ливень по стеклу',
+    note: 'стереозапись у окна',
     title: 'Дождь за окном',
     description:
-      'Мягкий ливень, дальний гул и отдельные капли по стеклу собираются в реальном времени.',
+      'Настоящая полевая стереозапись: дождь по стенам и стеклу, записанный из комнаты у полуоткрытого окна.',
   },
   ambient: {
     label: 'Ambient',
@@ -114,30 +114,6 @@ function frequency(note: number) {
   return 440 * 2 ** ((note - 69) / 12)
 }
 
-function makeNoiseBuffer(
-  context: AudioContext,
-  seconds: number,
-  channels = 2,
-) {
-  const buffer = context.createBuffer(
-    channels,
-    Math.floor(context.sampleRate * seconds),
-    context.sampleRate,
-  )
-
-  for (let channelIndex = 0; channelIndex < channels; channelIndex++) {
-    const channel = buffer.getChannelData(channelIndex)
-    let slow = Math.random() * 0.1 - 0.05
-    for (let index = 0; index < channel.length; index++) {
-      const white = Math.random() * 2 - 1
-      slow = slow * 0.996 + white * 0.004
-      channel[index] = Math.max(-1, Math.min(1, white * 0.74 + slow * 3.2))
-    }
-  }
-
-  return buffer
-}
-
 function makeReverb(context: AudioContext) {
   const convolver = context.createConvolver()
   const seconds = 2.8
@@ -169,61 +145,19 @@ function envelope(
   gain.exponentialRampToValueAtTime(0.0001, start + duration)
 }
 
-function createRain(volume: number): AudioEngine {
+async function createRain(volume: number): Promise<AudioEngine> {
   const context = new AudioContext({ latencyHint: 'playback' })
   const master = context.createGain()
-  const compressor = context.createDynamicsCompressor()
-  const rainBuffer = makeNoiseBuffer(context, 24)
-  const dropBuffer = makeNoiseBuffer(context, 3, 1)
-  const rain = context.createBufferSource()
-
   master.gain.value = Math.max(0.0001, volume / 100)
-  compressor.threshold.value = -20
-  compressor.knee.value = 20
-  compressor.ratio.value = 3
-  compressor.attack.value = 0.025
-  compressor.release.value = 0.4
-  compressor.connect(master).connect(context.destination)
+  master.connect(context.destination)
+  await context.resume()
 
-  rain.buffer = rainBuffer
-  rain.loop = true
-
-  const washHigh = context.createBiquadFilter()
-  const washLow = context.createBiquadFilter()
-  const washGain = context.createGain()
-  washHigh.type = 'highpass'
-  washHigh.frequency.value = 680
-  washHigh.Q.value = 0.35
-  washLow.type = 'lowpass'
-  washLow.frequency.value = 9100
-  washGain.gain.value = 0.29
-  rain.connect(washHigh).connect(washLow).connect(washGain).connect(compressor)
-
-  const glass = context.createBiquadFilter()
-  const glassGain = context.createGain()
-  glass.type = 'bandpass'
-  glass.frequency.value = 5200
-  glass.Q.value = 0.55
-  glassGain.gain.value = 0.095
-  rain.connect(glass).connect(glassGain).connect(compressor)
-
-  const room = context.createBiquadFilter()
-  const roomGain = context.createGain()
-  room.type = 'lowpass'
-  room.frequency.value = 480
-  room.Q.value = 0.5
-  roomGain.gain.value = 0.18
-  rain.connect(room).connect(roomGain).connect(compressor)
-
-  const drift = context.createOscillator()
-  const driftDepth = context.createGain()
-  drift.type = 'sine'
-  drift.frequency.value = 0.045
-  driftDepth.gain.value = 0.045
-  drift.connect(driftDepth).connect(washGain.gain)
-
-  rain.start()
-  drift.start()
+  const response = await fetch('/audio/rain-window.mp3', { cache: 'force-cache' })
+  if (!response.ok) {
+    await context.close()
+    throw new Error('rain audio unavailable')
+  }
+  const buffer = await context.decodeAudioData(await response.arrayBuffer())
 
   const engine: AudioEngine = {
     context,
@@ -231,62 +165,37 @@ function createRain(volume: number): AudioEngine {
     timer: 0,
     stopped: false,
   }
-  let nextDrop = context.currentTime + 0.05
+  const crossfade = Math.min(7, buffer.duration / 8)
+  let nextStart = context.currentTime + 0.06
+  let sequence = 0
 
-  function drop(start: number) {
+  function scheduleSource(start: number, first: boolean) {
     const source = context.createBufferSource()
-    const filter = context.createBiquadFilter()
     const gain = context.createGain()
-    const pan = context.createStereoPanner()
-    const heavy = Math.random() > 0.84
-    const duration = heavy ? 0.19 : 0.1 + Math.random() * 0.05
+    const end = start + buffer.duration
+    const fadeIn = first ? 0.8 : crossfade
 
-    source.buffer = dropBuffer
-    filter.type = 'bandpass'
-    filter.frequency.value = heavy
-      ? 900 + Math.random() * 1500
-      : 2600 + Math.random() * 4300
-    filter.Q.value = heavy ? 0.7 : 1.4
-    pan.pan.value = Math.random() * 1.8 - 0.9
-    envelope(
-      gain.gain,
-      start,
-      heavy ? 0.075 : 0.018 + Math.random() * 0.025,
-      0.003,
-      duration,
-    )
-
-    source
-      .connect(filter)
-      .connect(gain)
-      .connect(pan)
-      .connect(compressor)
-    source.start(start, Math.random() * (dropBuffer.duration - 0.25), duration)
-    source.stop(start + duration + 0.01)
-
-    if (heavy) {
-      const tone = context.createOscillator()
-      const toneGain = context.createGain()
-      tone.type = 'sine'
-      tone.frequency.setValueAtTime(1100 + Math.random() * 900, start)
-      tone.frequency.exponentialRampToValueAtTime(420, start + 0.13)
-      envelope(toneGain.gain, start, 0.008, 0.002, 0.14)
-      tone.connect(toneGain).connect(pan)
-      tone.start(start)
-      tone.stop(start + 0.15)
-    }
+    source.buffer = buffer
+    gain.gain.setValueAtTime(0.0001, start)
+    gain.gain.linearRampToValueAtTime(1, start + fadeIn)
+    gain.gain.setValueAtTime(1, end - crossfade)
+    gain.gain.linearRampToValueAtTime(0.0001, end)
+    source.connect(gain).connect(master)
+    source.start(start)
+    source.stop(end + 0.05)
   }
 
   function schedule() {
-    const horizon = context.currentTime + 0.45
-    while (nextDrop < horizon && !engine.stopped) {
-      drop(nextDrop)
-      nextDrop += 0.055 + Math.random() * 0.19
+    const horizon = context.currentTime + buffer.duration * 1.5
+    while (nextStart < horizon && !engine.stopped) {
+      scheduleSource(nextStart, sequence === 0)
+      nextStart += buffer.duration - crossfade
+      sequence++
     }
   }
 
   schedule()
-  engine.timer = window.setInterval(schedule, 120)
+  engine.timer = window.setInterval(schedule, 10000)
   return engine
 }
 
@@ -476,20 +385,24 @@ function createMusic(scene: MusicScene, volume: number): AudioEngine {
   return engine
 }
 
-function createAudio(scene: Scene, volume: number) {
+async function createAudio(scene: Scene, volume: number) {
   return scene === 'rain' ? createRain(volume) : createMusic(scene, volume)
 }
 
 export default function VibeRadio({ full = false }: { full?: boolean }) {
   const [scene, setScene] = useState<Scene>('rain')
   const [playing, setPlaying] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [minutes, setMinutes] = useState(25)
   const [remaining, setRemaining] = useState(25 * 60)
   const [volume, setVolume] = useState(42)
   const engine = useRef<AudioEngine | null>(null)
+  const startRequest = useRef(0)
   const copy = MODES[scene]
 
   const stop = useCallback(() => {
+    startRequest.current++
     const current = engine.current
     engine.current = null
     setPlaying(false)
@@ -509,10 +422,27 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
   const start = useCallback(
     async (nextScene = scene) => {
       if (engine.current) stop()
-      const next = createAudio(nextScene, volume)
-      engine.current = next
-      await next.context.resume()
-      setPlaying(true)
+      const request = ++startRequest.current
+      setLoading(true)
+      setError(null)
+      try {
+        const next = await createAudio(nextScene, volume)
+        if (request !== startRequest.current) {
+          next.stopped = true
+          window.clearInterval(next.timer)
+          await next.context.close()
+          return
+        }
+        engine.current = next
+        await next.context.resume()
+        setPlaying(true)
+      } catch {
+        if (request === startRequest.current) {
+          setError('Не удалось загрузить запись. Попробуйте включить ещё раз.')
+        }
+      } finally {
+        if (request === startRequest.current) setLoading(false)
+      }
     },
     [scene, stop, volume],
   )
@@ -550,6 +480,10 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
   }, [volume])
 
   function chooseScene(next: Scene) {
+    if (loading) {
+      startRequest.current++
+      setLoading(false)
+    }
     setScene(next)
     if (playing) void start(next)
   }
@@ -559,9 +493,11 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
     setRemaining(next * 60)
   }
 
-  const playLabel = playing
-    ? `Поставить «${copy.label}» на паузу`
-    : `Включить «${copy.label}»`
+  const playLabel = loading
+    ? `Загружаем «${copy.label}»`
+    : playing
+      ? `Поставить «${copy.label}» на паузу`
+      : `Включить «${copy.label}»`
 
   return (
     <section
@@ -574,7 +510,7 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
           <span className={styles.dot} /> VIBE FOCUS
         </span>
         <span className={styles.license}>
-          {scene === 'rain' ? 'SYNTHETIC RAIN · LIVE' : 'GENERATIVE LIVE'}
+          {scene === 'rain' ? 'FIELD RECORDING · CC0' : 'GENERATIVE LIVE'}
         </span>
       </div>
 
@@ -611,15 +547,16 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
       <div className={styles.copy}>
         <div>
           <h2 className={styles.title}>{copy.title}</h2>
-          <p className={styles.note}>{copy.description}</p>
+          <p className={styles.note}>{error ?? copy.description}</p>
         </div>
         <button
           type="button"
           className={styles.play}
           onClick={() => (playing ? stop() : void start())}
           aria-label={playLabel}
+          disabled={loading}
         >
-          {playing ? 'Ⅱ' : '▶'}
+          {loading ? '…' : playing ? 'Ⅱ' : '▶'}
         </button>
       </div>
 
@@ -665,7 +602,7 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
         {full ? (
           <span className={styles.hint}>
             {scene === 'rain'
-              ? 'Рисунок дождя не повторяется буквально'
+              ? '3:28 стереозаписи · плавное продолжение'
               : 'Каждая сессия звучит немного иначе'}
           </span>
         ) : (

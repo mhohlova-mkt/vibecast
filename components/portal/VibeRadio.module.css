@@ -213,6 +213,7 @@
 }
 
 .play:hover { transform: scale(1.06); }
+.play:disabled { cursor: wait; opacity: .72; transform: none; }
 
 .scenes,
 .sessions {

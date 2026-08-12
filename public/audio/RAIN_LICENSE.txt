@@ -1,0 +1,10 @@
+Rain from Half Open Window 2
+
+Author: Rutger Muller
+Source: https://freesound.org/people/RutgerMuller/sounds/158689/
+License: Creative Commons CC0 1.0 Universal
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+
+The recording was made with a Rode NT4 stereo microphone and a MOTU
+Ultralite MK3 audio interface. Vibecast uses the high-quality MP3 preview
+provided by Freesound and applies only playback crossfades in the browser.
