@@ -4,19 +4,19 @@ import VibeRadio from '@/components/portal/VibeRadio'
 import styles from './radio.module.css'
 
 export const metadata: Metadata = {
-  title: 'Vibe Radio — электронная музыка и дождь для работы',
+  title: 'Дождь за окном — звук для работы',
   description:
-    'Три плейлиста спокойной электронной музыки без вокала и настоящая стереозапись дождя — бесплатно, без рекламы и регистрации.',
+    'Настоящая стереозапись дождя за окном — бесплатно, без рекламы и регистрации.',
   alternates: { canonical: '/radio' },
 }
 
 export default function RadioPage() {
   return (
-    <SectionShell kicker="Бесплатная музыка" title="Vibe Radio">
+    <SectionShell kicker="Бесплатный звук" title="Дождь за окном">
       <div className={styles.intro}>
         <p>
-          Включайте перед кодингом, чтением или глубокой работой. Четыре станции:
-          дождь, dub techno, downtempo и длинный ambient — без вокала и рекламы.
+          Включайте перед кодингом, чтением или глубокой работой. Настоящая
+          стереозапись дождя у полуоткрытого окна — без рекламы и регистрации.
         </p>
       </div>
       <VibeRadio full />
