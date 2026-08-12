@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ArticleView } from '@/lib/portal'
+import { articlePath } from '@/lib/article-slug'
 import styles from './Hero.module.css'
 
 /**
@@ -43,7 +44,7 @@ export default function Hero({ article, mediaSrc, mediaKind }: HeroProps) {
     .join(' · ')
 
   return (
-    <Link href={`/a/${article.id}`} className={styles.hero}>
+    <Link href={articlePath(article)} className={styles.hero}>
       <div className={styles.head}>
         <span className={`mono ${styles.badge}`}>
           ★ {article.category?.name ?? 'ГЛАВНОЕ'}

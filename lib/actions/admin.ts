@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireUser, hashPassword } from '@/lib/auth'
 import { normalizeEmbedUrl } from '@/lib/embed'
+import { articleSlugBase } from '@/lib/article-slug'
 
 const TELEMOST = /^https:\/\/telemost\.yandex\.ru\//
 
@@ -96,6 +97,26 @@ export async function pinBroadcast(fd: FormData) {
 
 /* ─────────────── Статьи ─────────────── */
 
+async function uniqueArticleSlug(title: string, excludeId?: string) {
+  const base = articleSlugBase(title)
+  let slug = base
+  let suffix = 2
+
+  while (
+    await prisma.article.findFirst({
+      where: {
+        slug,
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: { id: true },
+    })
+  ) {
+    slug = `${base}_${suffix++}`
+  }
+
+  return slug
+}
+
 export async function saveArticle(fd: FormData) {
   await requireUser(['owner', 'editor'])
 
@@ -112,8 +133,9 @@ export async function saveArticle(fd: FormData) {
   }
 
   const status = publish ? 'published' : 'draft'
+  const title = str(fd, 'title') || 'Без заголовка'
   const data = {
-    title: str(fd, 'title') || 'Без заголовка',
+    title,
     categoryId: str(fd, 'categoryId') || null,
     author: str(fd, 'author'),
     authorAvatar: str(fd, 'authorAvatar') || null,
@@ -131,13 +153,18 @@ export async function saveArticle(fd: FormData) {
       where: { id },
       data: {
         ...data,
+        slug: prev?.slug || (await uniqueArticleSlug(title, id)),
         publishedAt:
           publish && !prev?.publishedAt ? new Date() : (prev?.publishedAt ?? null),
       },
     })
   } else {
     await prisma.article.create({
-      data: { ...data, publishedAt: publish ? new Date() : null },
+      data: {
+        ...data,
+        slug: await uniqueArticleSlug(title),
+        publishedAt: publish ? new Date() : null,
+      },
     })
   }
 

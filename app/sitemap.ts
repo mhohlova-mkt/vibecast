@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getPages, getPublishedArticles } from '@/lib/portal'
 import { SITE_ORIGIN } from '@/lib/site'
+import { articlePath } from '@/lib/article-slug'
 
 export const revalidate = 3600
 
@@ -19,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: index === 0 ? 1 : 0.7,
     })),
     ...articles.map((article) => ({
-      url: `${SITE_ORIGIN}/a/${encodeURIComponent(article.id)}`,
+      url: `${SITE_ORIGIN}${articlePath(article)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),

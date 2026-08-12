@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ArticleView } from '@/lib/portal'
+import { articlePath } from '@/lib/article-slug'
 import Avatar from './Avatar'
 import styles from './HorizontalCard.module.css'
 
@@ -24,7 +25,7 @@ export default function HorizontalCard({ article }: { article: ArticleView }) {
   const cover = (article.coverSrc || '').trim()
 
   return (
-    <Link href={`/a/${article.id}`} className={styles.card}>
+    <Link href={articlePath(article)} className={styles.card}>
       <div
         className={styles.cover}
         style={{

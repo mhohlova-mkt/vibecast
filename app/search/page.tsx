@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPublishedArticles } from '@/lib/portal'
+import { articlePath } from '@/lib/article-slug'
 import SectionShell from '@/components/portal/SectionShell'
 import styles from './search.module.css'
 
@@ -57,7 +58,7 @@ export default async function SearchPage({ searchParams }: Props) {
               : `По запросу «${query}» ничего не найдено`}
           </p>
           {results.map((article) => (
-            <Link key={article.id} href={`/a/${article.id}`} className={styles.result}>
+            <Link key={article.id} href={articlePath(article)} className={styles.result}>
               <span className={`mono ${styles.category}`}>
                 {article.category?.name ?? 'Материал'}
               </span>

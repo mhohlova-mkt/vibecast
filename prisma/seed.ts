@@ -5,6 +5,7 @@
 import { PrismaClient } from '../generated/prisma/client'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import 'dotenv/config'
+import { articleSlugBase } from '../lib/article-slug'
 
 const adapter = new PrismaBetterSqlite3({
   url: process.env.DATABASE_URL ?? 'file:./prisma/dev.db',
@@ -246,6 +247,7 @@ async function main() {
   for (const [i, a] of articles.entries()) {
     const data = {
       id: a.id,
+      slug: articleSlugBase(a.title),
       title: a.title,
       categoryId: catByName.get(a.cat) ?? null,
       author: a.author,

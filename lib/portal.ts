@@ -22,6 +22,7 @@ export type CategoryView = { id: string; name: string; bg: string; text: string 
 
 export type ArticleView = {
   id: string
+  slug: string | null
   title: string
   excerpt: string
   author: string
@@ -131,6 +132,7 @@ function toArticle(a: NonNullable<ArticleRow>): ArticleView {
   }
   return {
     id: a.id,
+    slug: a.slug,
     title: a.title,
     excerpt: a.excerpt,
     author: a.author,
@@ -206,9 +208,12 @@ export async function getPublishedArticles(sec?: 'feed' | 'tools' | 'learn') {
   return rows.map(toArticle)
 }
 
-export async function getArticle(id: string) {
+export async function getArticle(idOrSlug: string) {
   const row = await prisma.article.findFirst({
-    where: { id, status: 'published' },
+    where: {
+      status: 'published',
+      OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+    },
     include: { category: true },
   })
   return row ? toArticle(row) : null

@@ -6,6 +6,7 @@
 import { PrismaClient } from '../generated/prisma/client'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import 'dotenv/config'
+import { articleSlugBase } from '../lib/article-slug'
 
 const prisma = new PrismaClient({
   adapter: new PrismaBetterSqlite3({
@@ -101,6 +102,26 @@ async function main() {
   if (stale.length) {
     console.log(`адреса @vibecast.ru исправлены на страницах: ${stale.map((p) => p.id).join(', ')}`)
   }
+
+  // Старым статьям присваиваем короткие адреса, новые получают их при
+  // первом сохранении в админке. Совпадения разводим числовым суффиксом.
+  const articles = await prisma.article.findMany({
+    select: { id: true, title: true, slug: true },
+    orderBy: { createdAt: 'asc' },
+  })
+  const used = new Set(articles.map((article) => article.slug).filter(Boolean))
+  let slugged = 0
+  for (const article of articles) {
+    if (article.slug) continue
+    const base = articleSlugBase(article.title)
+    let slug = base
+    let suffix = 2
+    while (used.has(slug)) slug = `${base}_${suffix++}`
+    await prisma.article.update({ where: { id: article.id }, data: { slug } })
+    used.add(slug)
+    slugged++
+  }
+  if (slugged) console.log(`красивых адресов статей создано: ${slugged}`)
 }
 
 main()

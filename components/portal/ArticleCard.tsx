@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ArticleView } from '@/lib/portal'
+import { articlePath } from '@/lib/article-slug'
 import Avatar from './Avatar'
 import styles from './ArticleCard.module.css'
 
@@ -30,7 +31,7 @@ export default function ArticleCard({ article }: { article: ArticleView }) {
   const ratio = article.coverRatio || '1685/1000'
 
   return (
-    <Link href={`/a/${article.id}`} className={styles.card}>
+    <Link href={articlePath(article)} className={styles.card}>
       {cover ? (
         <div className={styles.photo}>
           <div

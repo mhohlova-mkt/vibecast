@@ -92,6 +92,7 @@ model Category {
 /// Статья. status: draft | published; sec: feed | tools | learn
 model Article {
   id           String    @id @default(cuid())
+  slug         String?   @unique
   title        String
   categoryId   String?
   category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -158,29 +159,29 @@ model Consent {
 
 /// Одна строка (id = "home"): настройки главной.
 model Home {
-  id            String   @id @default("home")
-  heroArticleId String?
-  heroMediaSrc  String?
-  heroMediaKind String? // image | video
-  bannerEnabled Boolean  @default(false)
-  bannerHtml    String   @default("")
-  bannerImg     String?
-  bannerLink    String   @default("")
+  id             String   @id @default("home")
+  heroArticleId  String?
+  heroMediaSrc   String?
+  heroMediaKind  String? // image | video
+  bannerEnabled  Boolean  @default(false)
+  bannerHtml     String   @default("")
+  bannerImg      String?
+  bannerLink     String   @default("")
   /// Что показывать в правом блоке главной:
   /// broadcast — эфир или анонс, media — своя картинка/видео, hidden — скрыть.
   promoKind      String   @default("broadcast")
   promoMediaSrc  String?
   promoMediaKind String? // image | video
   promoLink      String   @default("")
-  learnPinOn    Boolean  @default(false)
+  learnPinOn     Boolean  @default(false)
   /// Логотип или картинка в белой части закрепа; null = логотип по умолчанию
-  learnPinImg   String?
-  learnPinTitle String   @default("")
-  learnPinDesc  String   @default("")
-  learnPinLink  String   @default("")
+  learnPinImg    String?
+  learnPinTitle  String   @default("")
+  learnPinDesc   String   @default("")
+  learnPinLink   String   @default("")
   /// id закреплённой в промо трансляции; null = авто
-  homePromoId   String?
-  updatedAt     DateTime @updatedAt
+  homePromoId    String?
+  updatedAt      DateTime @updatedAt
 }
 
 /// Простые счётчики для раздела «Статистика».

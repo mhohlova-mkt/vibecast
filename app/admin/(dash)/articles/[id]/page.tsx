@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import type { ArticleBlock } from '@/lib/portal'
 import ArticleEditor from '../ArticleEditor'
+import { articlePath } from '@/lib/article-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,7 +45,7 @@ export default async function EditArticlePage({
         </Link>
         {article.status === 'published' ? (
           <Link
-            href={`/a/${article.id}`}
+            href={articlePath(article)}
             target="_blank"
             style={{
               fontSize: 13,

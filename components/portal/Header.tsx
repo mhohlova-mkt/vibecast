@@ -18,9 +18,14 @@ const NAV = [
   { href: '/learn', label: 'Обучение' },
 ] as const
 
-/** Активный пункт меню. Статья (/a/...) подсвечивает «Ленту» — как в прототипе. */
+/** Активный пункт меню. Статья подсвечивает «Ленту» — как в прототипе. */
 function isActive(href: string, pathname: string): boolean {
-  if (href === '/') return pathname === '/' || pathname.startsWith('/a/')
+  if (href === '/')
+    return (
+      pathname === '/' ||
+      pathname.startsWith('/a/') ||
+      pathname.startsWith('/text/')
+    )
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
@@ -33,7 +38,8 @@ function emailInitials(email: string): string {
 export default function Header({ liveNow, viewer }: HeaderProps) {
   const pathname = usePathname() ?? '/'
   const [menuOpen, setMenuOpen] = useState(false)
-  const isArticlePage = pathname.startsWith('/a/')
+  const isArticlePage =
+    pathname.startsWith('/a/') || pathname.startsWith('/text/')
 
   return (
     <header className={styles.header}>

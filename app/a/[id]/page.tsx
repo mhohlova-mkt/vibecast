@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { getArticle, getBroadcasts, getPages } from '@/lib/portal'
 import { getViewer } from '@/lib/viewer'
 import Header from '@/components/portal/Header'
@@ -9,6 +9,7 @@ import Avatar from '@/components/portal/Avatar'
 import ArticleBody from '@/components/portal/ArticleBody'
 import ShareArticle from '@/components/portal/ShareArticle'
 import { publicUrl } from '@/lib/site'
+import { articlePath } from '@/lib/article-slug'
 
 // Контентом управляет админка — страницы обязаны рендериться на каждый
 // запрос. Иначе Next запекает их в статику на сборке и правки редакции
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!article) return { title: 'Материал не найден — vibecast' }
 
   const cover = (article.coverSrc || '').trim()
-  const canonical = `/a/${encodeURIComponent(id)}`
+  const canonical = articlePath(article)
   const socialImage = publicUrl(cover || '/brand/vibecast-mark.png')
   return {
     title: `${article.title} — vibecast`,
@@ -69,6 +70,7 @@ export default async function ArticlePage({ params }: Params) {
     getViewer(),
   ])
   if (!article) notFound()
+  if (id !== article.slug) permanentRedirect(articlePath(article))
 
   const liveNow = broadcasts.some((b) => b.status === 'live')
   const cover = (article.coverSrc || '').trim()
