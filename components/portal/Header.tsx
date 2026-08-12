@@ -26,6 +26,8 @@ function isActive(href: string, pathname: string): boolean {
       pathname.startsWith('/a/') ||
       pathname.startsWith('/text/')
     )
+  if (href === '/live')
+    return pathname === href || pathname.startsWith('/video/')
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
@@ -39,7 +41,9 @@ export default function Header({ liveNow, viewer }: HeaderProps) {
   const pathname = usePathname() ?? '/'
   const [menuOpen, setMenuOpen] = useState(false)
   const isArticlePage =
-    pathname.startsWith('/a/') || pathname.startsWith('/text/')
+    pathname.startsWith('/a/') ||
+    pathname.startsWith('/text/') ||
+    pathname.startsWith('/video/')
 
   return (
     <header className={styles.header}>

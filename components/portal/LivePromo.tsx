@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { BroadcastView } from '@/lib/portal'
+import { broadcastPath } from '@/lib/article-slug'
 import styles from './LivePromo.module.css'
 
 /**
@@ -153,7 +154,7 @@ export default function LivePromo({ promo }: { promo: BroadcastView | null }) {
         </div>
 
         <Link
-          href="/live"
+          href={broadcastPath(promo)}
           className={isLive ? styles.ctaSolid : styles.ctaGhost}
         >
           {isLive ? (

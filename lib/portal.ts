@@ -39,6 +39,7 @@ export type ArticleView = {
 
 export type BroadcastView = {
   id: string
+  slug: string | null
   title: string
   speaker: string
   role: string
@@ -150,6 +151,7 @@ function toArticle(a: NonNullable<ArticleRow>): ArticleView {
 
 function toBroadcast(b: {
   id: string
+  slug: string | null
   title: string
   speaker: string
   role: string
@@ -176,6 +178,7 @@ function toBroadcast(b: {
   }
   return {
     id: b.id,
+    slug: b.slug,
     title: b.title,
     speaker: b.speaker,
     role: b.role,
@@ -225,6 +228,16 @@ export async function getBroadcasts() {
     orderBy: [{ sortIndex: 'asc' }],
   })
   return rows.map(toBroadcast)
+}
+
+export async function getBroadcast(idOrSlug: string) {
+  const row = await prisma.broadcast.findFirst({
+    where: {
+      status: { not: 'draft' },
+      OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+    },
+  })
+  return row ? toBroadcast(row) : null
 }
 
 export async function getHome(): Promise<HomeView> {

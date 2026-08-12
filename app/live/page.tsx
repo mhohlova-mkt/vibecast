@@ -9,6 +9,7 @@ import LivePoll from '@/components/portal/LivePoll'
 import LiveChat from '@/components/portal/LiveChat'
 import { prisma } from '@/lib/db'
 import styles from './live.module.css'
+import { broadcastPath } from '@/lib/article-slug'
 
 export const metadata: Metadata = {
   title: 'Вебинары и прямые эфиры — vibecast',
@@ -203,15 +204,20 @@ export default async function LivePage() {
               {next ? next.title : 'Скоро анонсируем следующий эфир'}
             </h1>
             {next ? (
-              <div className={styles.nextRow}>
-                <span className={`mono ${styles.nextWhen}`}>
-                  {formatWhen(next.date, next.time)}
-                </span>
-                <span className={styles.nextDot} />
-                <span className={styles.nextSpeaker}>
-                  {[next.speaker, next.role].filter(Boolean).join(' · ')}
-                </span>
-              </div>
+              <>
+                <div className={styles.nextRow}>
+                  <span className={`mono ${styles.nextWhen}`}>
+                    {formatWhen(next.date, next.time)}
+                  </span>
+                  <span className={styles.nextDot} />
+                  <span className={styles.nextSpeaker}>
+                    {[next.speaker, next.role].filter(Boolean).join(' · ')}
+                  </span>
+                </div>
+                <Link href={broadcastPath(next)} className={styles.nextLink}>
+                  Страница вебинара ↗
+                </Link>
+              </>
             ) : null}
 
             {viewer ? (
@@ -247,6 +253,9 @@ export default async function LivePage() {
                   </div>
                   <h3 className={styles.recCardTitle}>{b.title}</h3>
                   <span className={styles.recSpeaker}>{b.speaker}</span>
+                  <Link className={styles.recPageLink} href={broadcastPath(b)}>
+                    О вебинаре
+                  </Link>
                   {canWatch ? (
                     b.recordingUrl ? (
                       <a

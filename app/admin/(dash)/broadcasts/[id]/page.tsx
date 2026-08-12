@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import BroadcastEditor from '../BroadcastEditor'
+import { broadcastPath } from '@/lib/article-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,19 +24,31 @@ export default async function EditBroadcastPage({
 
   return (
     <div>
-      <Link
-        href="/admin/broadcasts"
-        style={{
-          display: 'inline-block',
-          marginBottom: 18,
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--muted)',
-          textDecoration: 'none',
-        }}
-      >
-        ← К списку
-      </Link>
+      <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 18 }}>
+        <Link
+          href="/admin/broadcasts"
+          style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)', textDecoration: 'none' }}
+        >
+          ← К списку
+        </Link>
+        {b.status !== 'draft' ? (
+          <Link
+            href={broadcastPath(b)}
+            target="_blank"
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--dark)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--r-pill)',
+              padding: '7px 15px',
+              textDecoration: 'none',
+            }}
+          >
+            Открыть на сайте ↗
+          </Link>
+        ) : null}
+      </div>
       <h1
         style={{
           margin: '0 0 22px',

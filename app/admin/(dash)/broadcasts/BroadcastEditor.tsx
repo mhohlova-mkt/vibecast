@@ -186,6 +186,63 @@ export default function BroadcastEditor({ draft }: { draft: BroadcastDraft }) {
           placeholder="через пробел: saas деплой next"
           style={field}
         />
+
+        <span style={label}>Обложка вебинара</span>
+        <div
+          style={{
+            width: 'min(100%, 560px)',
+            aspectRatio: '16 / 9',
+            overflow: 'hidden',
+            border: '1px solid var(--line)',
+            borderRadius: 18,
+            background: '#15160F',
+            display: 'grid',
+            placeItems: 'center',
+          }}
+        >
+          {poster ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={poster}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <span className="mono" style={{ fontSize: 11, color: '#A9B29C' }}>
+              16:9 · ПОСТЕР ВЕБИНАРА
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            type="file"
+            accept="image/*"
+            style={{ fontSize: 13 }}
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) void upload(file, setPoster)
+            }}
+          />
+          {poster ? (
+            <button
+              type="button"
+              onClick={() => setPoster('')}
+              style={{
+                border: '1px solid var(--line)',
+                background: 'transparent',
+                borderRadius: 'var(--r-pill)',
+                padding: '8px 16px',
+                fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              Убрать
+            </button>
+          ) : null}
+        </div>
+        <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+          Лучше горизонтальное изображение 1600×900 — оно попадёт на страницу и в превью ссылки.
+        </span>
       </section>
 
       {/* ─── Спикер ─── */}

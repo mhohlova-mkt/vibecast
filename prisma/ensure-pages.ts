@@ -122,6 +122,30 @@ async function main() {
     slugged++
   }
   if (slugged) console.log(`красивых адресов статей создано: ${slugged}`)
+
+  const broadcasts = await prisma.broadcast.findMany({
+    select: { id: true, title: true, slug: true },
+    orderBy: { createdAt: 'asc' },
+  })
+  const usedBroadcastSlugs = new Set(
+    broadcasts.map((broadcast) => broadcast.slug).filter(Boolean),
+  )
+  let broadcastSlugged = 0
+  for (const broadcast of broadcasts) {
+    if (broadcast.slug) continue
+    const base = articleSlugBase(broadcast.title)
+    let slug = base
+    let suffix = 2
+    while (usedBroadcastSlugs.has(slug)) slug = `${base}_${suffix++}`
+    await prisma.broadcast.update({
+      where: { id: broadcast.id },
+      data: { slug },
+    })
+    usedBroadcastSlugs.add(slug)
+    broadcastSlugged++
+  }
+  if (broadcastSlugged)
+    console.log(`красивых адресов вебинаров создано: ${broadcastSlugged}`)
 }
 
 main()

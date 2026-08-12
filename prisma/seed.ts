@@ -238,7 +238,8 @@ async function main() {
   }
 
   for (const b of broadcasts) {
-    await prisma.broadcast.upsert({ where: { id: b.id }, create: b, update: b })
+    const data = { ...b, slug: articleSlugBase(b.title) }
+    await prisma.broadcast.upsert({ where: { id: b.id }, create: data, update: data })
   }
 
   const catByName = new Map(

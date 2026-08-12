@@ -50,3 +50,7 @@ export function articleSlugBase(title: string): string {
 export function articlePath(article: { id: string; slug?: string | null }): string {
   return `/text/${encodeURIComponent(article.slug || article.id)}`
 }
+
+export function broadcastPath(broadcast: { id: string; slug?: string | null }): string {
+  return `/video/${encodeURIComponent(broadcast.slug || broadcast.id)}`
+}

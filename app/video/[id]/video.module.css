@@ -1,0 +1,135 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 34px) clamp(16px, 4vw, 40px) clamp(42px, 6vw, 72px);
+}
+
+.back {
+  display: inline-flex;
+  color: #15160f;
+  border: 1px solid #d2d1c6;
+  border-radius: 999px;
+  padding: 8px 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
+  background: #15160f;
+  color: #f4f3ec;
+  border-radius: clamp(22px, 3vw, 34px);
+  overflow: hidden;
+}
+
+.poster {
+  position: relative;
+  min-height: 520px;
+  background-color: #0c0d08;
+  background-position: center;
+  background-size: cover;
+  background-image: repeating-linear-gradient(45deg, rgba(244, 243, 236, .04) 0 12px, transparent 12px 24px);
+}
+
+.status {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #f4f3ec;
+  color: #15160f;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.statusLive {
+  background: #e5402f;
+  color: #fff;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px, 5vw, 58px);
+}
+
+.when {
+  color: var(--accent, #cbf54a);
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+
+.title {
+  margin: 16px 0 12px;
+  font-size: clamp(32px, 4.5vw, 58px);
+  line-height: .95;
+  letter-spacing: -.045em;
+}
+
+.speaker {
+  margin: 0;
+  color: #c7c6ba;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.desc {
+  margin: 24px 0 0;
+  color: #a9b29c;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.tags span {
+  border: 1px solid #4a4b40;
+  border-radius: 999px;
+  padding: 5px 10px;
+  color: #c7c6ba;
+  font-size: 11px;
+}
+
+.action {
+  margin-top: 28px;
+}
+
+.watch {
+  display: inline-flex;
+  padding: 13px 22px;
+  border-radius: 14px;
+  background: var(--accent, #cbf54a);
+  color: #15160f;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.reminded {
+  color: #c7c6ba;
+  font-size: 14px;
+}
+
+@media (max-width: 820px) {
+  .hero { grid-template-columns: 1fr; }
+  .poster { min-height: min(70vw, 440px); }
+}

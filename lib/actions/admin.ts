@@ -23,6 +23,26 @@ function bool(fd: FormData, key: string) {
 
 /* ─────────────── Трансляции ─────────────── */
 
+async function uniqueBroadcastSlug(title: string, excludeId?: string) {
+  const base = articleSlugBase(title)
+  let slug = base
+  let suffix = 2
+
+  while (
+    await prisma.broadcast.findFirst({
+      where: {
+        slug,
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: { id: true },
+    })
+  ) {
+    slug = `${base}_${suffix++}`
+  }
+
+  return slug
+}
+
 export async function saveBroadcast(fd: FormData) {
   await requireUser(['owner', 'editor'])
 
@@ -41,8 +61,9 @@ export async function saveBroadcast(fd: FormData) {
     .filter(Boolean)
   const question = str(fd, 'pollQuestion')
 
+  const title = str(fd, 'title') || 'Без названия'
   const data = {
-    title: str(fd, 'title') || 'Без названия',
+    title,
     speaker: str(fd, 'speaker'),
     role: str(fd, 'role'),
     speakerAvatar: str(fd, 'speakerAvatar') || null,
@@ -61,8 +82,20 @@ export async function saveBroadcast(fd: FormData) {
     desc: str(fd, 'desc'),
   }
 
-  if (id) await prisma.broadcast.update({ where: { id }, data })
-  else await prisma.broadcast.create({ data })
+  if (id) {
+    const previous = await prisma.broadcast.findUnique({ where: { id } })
+    await prisma.broadcast.update({
+      where: { id },
+      data: {
+        ...data,
+        slug: previous?.slug || (await uniqueBroadcastSlug(title, id)),
+      },
+    })
+  } else {
+    await prisma.broadcast.create({
+      data: { ...data, slug: await uniqueBroadcastSlug(title) },
+    })
+  }
 
   refresh('/live', '/admin/broadcasts')
   redirect('/admin/broadcasts')

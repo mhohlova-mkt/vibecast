@@ -1,13 +1,14 @@
 import type { MetadataRoute } from 'next'
-import { getPages, getPublishedArticles } from '@/lib/portal'
+import { getBroadcasts, getPages, getPublishedArticles } from '@/lib/portal'
 import { SITE_ORIGIN } from '@/lib/site'
-import { articlePath } from '@/lib/article-slug'
+import { articlePath, broadcastPath } from '@/lib/article-slug'
 
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, pages] = await Promise.all([
+  const [articles, broadcasts, pages] = await Promise.all([
     getPublishedArticles(),
+    getBroadcasts(),
     getPages(),
   ])
 
@@ -23,6 +24,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_ORIGIN}${articlePath(article)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
+    })),
+    ...broadcasts.map((broadcast) => ({
+      url: `${SITE_ORIGIN}${broadcastPath(broadcast)}`,
+      changeFrequency: 'weekly' as const,
+      priority: broadcast.status === 'live' ? 0.9 : 0.7,
     })),
     ...pages.map((page) => ({
       url: `${SITE_ORIGIN}/p/${encodeURIComponent(page.id)}`,

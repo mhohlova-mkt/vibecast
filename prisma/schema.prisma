@@ -38,6 +38,7 @@ model Session {
 /// Трансляция. status: draft | scheduled | live | recorded
 model Broadcast {
   id            String   @id @default(cuid())
+  slug          String?  @unique
   title         String
   speaker       String   @default("")
   role          String   @default("")
