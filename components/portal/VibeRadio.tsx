@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './VibeRadio.module.css'
 
@@ -106,8 +105,9 @@ const MUSIC: Record<MusicScene, SceneConfig> = {
 const MODE_ORDER: Scene[] = ['rain', 'ambient', 'pulse', 'night']
 
 function clock(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0
+  const minutes = Math.floor(safeSeconds / 60)
+  return `${String(minutes).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`
 }
 
 function frequency(note: number) {
@@ -143,60 +143,6 @@ function envelope(
   gain.setValueAtTime(0.0001, start)
   gain.exponentialRampToValueAtTime(peak, start + attack)
   gain.exponentialRampToValueAtTime(0.0001, start + duration)
-}
-
-async function createRain(volume: number): Promise<AudioEngine> {
-  const context = new AudioContext({ latencyHint: 'playback' })
-  const master = context.createGain()
-  master.gain.value = Math.max(0.0001, volume / 100)
-  master.connect(context.destination)
-  await context.resume()
-
-  const response = await fetch('/audio/rain-window.mp3', { cache: 'force-cache' })
-  if (!response.ok) {
-    await context.close()
-    throw new Error('rain audio unavailable')
-  }
-  const buffer = await context.decodeAudioData(await response.arrayBuffer())
-
-  const engine: AudioEngine = {
-    context,
-    master,
-    timer: 0,
-    stopped: false,
-  }
-  const crossfade = Math.min(7, buffer.duration / 8)
-  let nextStart = context.currentTime + 0.06
-  let sequence = 0
-
-  function scheduleSource(start: number, first: boolean) {
-    const source = context.createBufferSource()
-    const gain = context.createGain()
-    const end = start + buffer.duration
-    const fadeIn = first ? 0.8 : crossfade
-
-    source.buffer = buffer
-    gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.linearRampToValueAtTime(1, start + fadeIn)
-    gain.gain.setValueAtTime(1, end - crossfade)
-    gain.gain.linearRampToValueAtTime(0.0001, end)
-    source.connect(gain).connect(master)
-    source.start(start)
-    source.stop(end + 0.05)
-  }
-
-  function schedule() {
-    const horizon = context.currentTime + buffer.duration * 1.5
-    while (nextStart < horizon && !engine.stopped) {
-      scheduleSource(nextStart, sequence === 0)
-      nextStart += buffer.duration - crossfade
-      sequence++
-    }
-  }
-
-  schedule()
-  engine.timer = window.setInterval(schedule, 10000)
-  return engine
 }
 
 function createMusic(scene: MusicScene, volume: number): AudioEngine {
@@ -385,24 +331,23 @@ function createMusic(scene: MusicScene, volume: number): AudioEngine {
   return engine
 }
 
-async function createAudio(scene: Scene, volume: number) {
-  return scene === 'rain' ? createRain(volume) : createMusic(scene, volume)
-}
-
 export default function VibeRadio({ full = false }: { full?: boolean }) {
   const [scene, setScene] = useState<Scene>('rain')
   const [playing, setPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [minutes, setMinutes] = useState(25)
-  const [remaining, setRemaining] = useState(25 * 60)
   const [volume, setVolume] = useState(42)
+  const [position, setPosition] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [repeat, setRepeat] = useState(false)
   const engine = useRef<AudioEngine | null>(null)
+  const audio = useRef<HTMLAudioElement | null>(null)
   const startRequest = useRef(0)
   const copy = MODES[scene]
 
   const stop = useCallback(() => {
     startRequest.current++
+    audio.current?.pause()
     const current = engine.current
     engine.current = null
     setPlaying(false)
@@ -426,7 +371,21 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
       setLoading(true)
       setError(null)
       try {
-        const next = await createAudio(nextScene, volume)
+        if (nextScene === 'rain') {
+          const recording = audio.current
+          if (!recording) throw new Error('rain audio unavailable')
+          recording.volume = volume / 100
+          recording.loop = repeat
+          await recording.play()
+          if (request !== startRequest.current) {
+            recording.pause()
+            return
+          }
+          setPlaying(true)
+          return
+        }
+
+        const next = createMusic(nextScene, volume)
         if (request !== startRequest.current) {
           next.stopped = true
           window.clearInterval(next.timer)
@@ -444,11 +403,12 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
         if (request === startRequest.current) setLoading(false)
       }
     },
-    [scene, stop, volume],
+    [repeat, scene, stop, volume],
   )
 
   useEffect(
     () => () => {
+      audio.current?.pause()
       if (!engine.current) return
       engine.current.stopped = true
       window.clearInterval(engine.current.timer)
@@ -458,18 +418,28 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
   )
 
   useEffect(() => {
-    if (!playing) return
-    const timer = window.setInterval(() => {
-      setRemaining((value) => {
-        if (value > 1) return value - 1
-        stop()
-        return minutes * 60
-      })
-    }, 1000)
-    return () => window.clearInterval(timer)
-  }, [minutes, playing, stop])
+    const recording = audio.current
+    if (!recording) return
+
+    const syncMetadata = () => {
+      setDuration(Number.isFinite(recording.duration) ? recording.duration : 0)
+      setPosition(recording.currentTime)
+    }
+    const syncPosition = () => setPosition(recording.currentTime)
+
+    syncMetadata()
+    recording.addEventListener('loadedmetadata', syncMetadata)
+    recording.addEventListener('durationchange', syncMetadata)
+    recording.addEventListener('timeupdate', syncPosition)
+    return () => {
+      recording.removeEventListener('loadedmetadata', syncMetadata)
+      recording.removeEventListener('durationchange', syncMetadata)
+      recording.removeEventListener('timeupdate', syncPosition)
+    }
+  }, [])
 
   useEffect(() => {
+    if (audio.current) audio.current.volume = volume / 100
     const current = engine.current
     if (!current) return
     current.master.gain.setTargetAtTime(
@@ -478,6 +448,10 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
       0.08,
     )
   }, [volume])
+
+  useEffect(() => {
+    if (audio.current) audio.current.loop = repeat
+  }, [repeat])
 
   function chooseScene(next: Scene) {
     if (loading) {
@@ -488,9 +462,11 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
     if (playing) void start(next)
   }
 
-  function chooseMinutes(next: number) {
-    setMinutes(next)
-    setRemaining(next * 60)
+  function seek(next: number) {
+    const recording = audio.current
+    if (!recording || !Number.isFinite(recording.duration)) return
+    recording.currentTime = Math.min(Math.max(next, 0), recording.duration)
+    setPosition(recording.currentTime)
   }
 
   const playLabel = loading
@@ -505,6 +481,16 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
       data-full={full ? '' : undefined}
       data-mode={scene}
     >
+      <audio
+        ref={audio}
+        src="/audio/rain-window.mp3"
+        preload="metadata"
+        loop={repeat}
+        onEnded={() => {
+          setPosition(duration)
+          setPlaying(false)
+        }}
+      />
       <div className={styles.topline}>
         <span className={`mono ${styles.eyebrow}`}>
           <span className={styles.dot} /> VIBE FOCUS
@@ -541,7 +527,7 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
             ))}
           </div>
         )}
-        <span className={styles.timer}>{clock(remaining)}</span>
+        <span className={styles.status}>{playing ? 'ON AIR' : 'READY'}</span>
       </div>
 
       <div className={styles.copy}>
@@ -575,6 +561,39 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
         ))}
       </div>
 
+      {scene === 'rain' ? (
+        <div className={styles.transport}>
+          <div className={styles.timeline}>
+            <span>{clock(position)}</span>
+            <input
+              className={styles.progress}
+              type="range"
+              min="0"
+              max={duration || 0}
+              step="0.1"
+              value={Math.min(position, duration || 0)}
+              onChange={(event) => seek(Number(event.target.value))}
+              aria-label="Позиция в записи"
+            />
+            <span>{clock(duration)}</span>
+          </div>
+          <button
+            type="button"
+            className={styles.repeat}
+            data-active={repeat ? '' : undefined}
+            aria-pressed={repeat}
+            onClick={() => setRepeat((value) => !value)}
+          >
+            ↻ {repeat ? 'Повтор включён' : 'Повтор трека'}
+          </button>
+        </div>
+      ) : (
+        <div className={styles.liveTransport}>
+          <span>LIVE</span>
+          <span>Бесконечный поток без таймера</span>
+        </div>
+      )}
+
       <label className={styles.volume}>
         <span>Громкость</span>
         <input
@@ -585,32 +604,6 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
           onChange={(event) => setVolume(Number(event.target.value))}
         />
       </label>
-
-      <div className={styles.bottomline}>
-        <div className={styles.sessions} aria-label="Длительность фокус-сессии">
-          {[25, 50].map((value) => (
-            <button
-              key={value}
-              type="button"
-              data-active={minutes === value ? '' : undefined}
-              onClick={() => chooseMinutes(value)}
-            >
-              {value} мин
-            </button>
-          ))}
-        </div>
-        {full ? (
-          <span className={styles.hint}>
-            {scene === 'rain'
-              ? '3:28 стереозаписи · плавное продолжение'
-              : 'Каждая сессия звучит немного иначе'}
-          </span>
-        ) : (
-          <Link href="/radio" className={styles.open}>
-            На весь экран ↗
-          </Link>
-        )}
-      </div>
     </section>
   )
 }

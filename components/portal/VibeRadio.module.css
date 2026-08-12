@@ -33,7 +33,6 @@
 }
 
 .topline,
-.bottomline,
 .copy {
   display: flex;
   align-items: center;
@@ -57,8 +56,7 @@
   box-shadow: 0 0 14px currentColor;
 }
 
-.license,
-.hint {
+.license {
   color: #6f7567;
   font-size: 10px;
   font-family: var(--font-mono), monospace;
@@ -168,7 +166,7 @@
 .wave i:nth-child(4n) { height: 43%; }
 .wave i:nth-child(5n) { height: 21%; }
 
-.timer {
+.status {
   position: relative;
   z-index: 1;
   font-family: var(--font-mono), monospace;
@@ -215,14 +213,12 @@
 .play:hover { transform: scale(1.06); }
 .play:disabled { cursor: wait; opacity: .72; transform: none; }
 
-.scenes,
-.sessions {
+.scenes {
   display: flex;
   gap: 7px;
 }
 
-.scene,
-.sessions button {
+.scene {
   border: 1px solid #3a3b31;
   border-radius: 999px;
   background: transparent;
@@ -232,9 +228,64 @@
   cursor: pointer;
 }
 
-.scene[data-active],
-.sessions button[data-active] {
+.scene[data-active] {
   border-color: var(--accent, #cbf54a);
+  color: var(--accent, #cbf54a);
+}
+
+.transport {
+  display: grid;
+  gap: 10px;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 10px;
+  color: #a9b29c;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline span:last-child { text-align: right; }
+
+.progress {
+  width: 100%;
+  height: 4px;
+  accent-color: var(--accent, #cbf54a);
+  cursor: ew-resize;
+}
+
+.repeat {
+  justify-self: start;
+  border: 1px solid #3a3b31;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: transparent;
+  color: #8f9487;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.repeat[data-active] {
+  border-color: var(--accent, #cbf54a);
+  color: var(--accent, #cbf54a);
+}
+
+.liveTransport {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6f7567;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.liveTransport span:first-child {
   color: var(--accent, #cbf54a);
 }
 
@@ -255,14 +306,6 @@
   height: 3px;
   accent-color: var(--accent, #cbf54a);
   cursor: pointer;
-}
-
-.open {
-  color: #c7c6ba;
-  font-size: 11px;
-  font-weight: 650;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 @keyframes equalize {
@@ -290,6 +333,6 @@
 @media (max-width: 560px) {
   .radio { min-height: 450px; }
   .license { display: none; }
-  .bottomline { align-items: flex-end; }
   .scenes { flex-wrap: wrap; }
+  .timeline { grid-template-columns: 38px minmax(0, 1fr) 38px; gap: 7px; }
 }
