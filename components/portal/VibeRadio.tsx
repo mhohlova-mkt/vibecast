@@ -9,6 +9,7 @@ type Track = {
   title: string
   artist: string
   src: string
+  downloads?: string
 }
 
 type Station = {
@@ -34,43 +35,46 @@ const STATIONS: Record<StationId, Station> = {
   depth: {
     label: 'Глубина',
     title: 'Глубина',
-    description: 'Dub techno, minimal и мягкий аппаратный грув для работы.',
+    description: 'Популярная CC0-электроника: отобрано по скачиваниям, без вокала.',
     tracks: [
-      { title: '2018-08-31', artist: 'Doctor Dreamchip', src: '/audio/radio/depth/09-deep-2018-08-31.mp3' },
-      { title: 'Saturn — Tech House', artist: 'ertuzeus', src: '/audio/radio/depth/10-deep-saturn-tech-house.mp3' },
-      { title: '2018-09-05', artist: 'Doctor Dreamchip', src: '/audio/radio/depth/11-deep-2018-09-05.mp3' },
-      { title: 'Background Techno 131 BPM', artist: 'gis_sweden', src: '/audio/radio/depth/12-deep-background-techno.mp3' },
-      { title: 'Model D — Dub Techno', artist: 'thehorsevalse', src: '/audio/radio/depth/04-human-dub-techno-preview.mp3' },
-      { title: 'Neutron — Prog / Tech House', artist: 'thehorsevalse', src: '/audio/radio/depth/06-prog-tech-house-preview.mp3' },
-      { title: 'Melodic Techno', artist: 'thehorsevalse', src: '/audio/radio/depth/08-melodic-techno-loop-preview.mp3' },
+      { title: 'Model D — Dub Techno', artist: 'thehorsevalse', src: '/audio/radio/depth/04-human-dub-techno-preview.mp3', downloads: '120' },
+      { title: 'gameMusic', artist: 'Magntron', src: '/audio/radio/depth/01-gamemusic.mp3', downloads: '9 741' },
+      { title: 'Space Arp F Chords', artist: 'BuytheField', src: '/audio/radio/depth/02-space-arp.mp3', downloads: '2 885' },
+      { title: 'Background Music PA!', artist: 'ProAnanasGumpy', src: '/audio/radio/depth/03-background-pa.mp3', downloads: '2 524' },
+      { title: 'Cute Happy Background Music', artist: 'Seth Makes Sounds', src: '/audio/radio/depth/04-cute-happy.mp3', downloads: '2 361' },
+      { title: 'Video Game Sound', artist: 'djgriffin', src: '/audio/radio/depth/05-video-game.mp3', downloads: '2 085' },
+      { title: 'Electronic Glitter', artist: 'moogsy', src: '/audio/radio/depth/06-electronic-glitter.mp3', downloads: '1 695' },
+      { title: 'Free Commercial Song', artist: 'Seth Makes Sounds', src: '/audio/radio/depth/07-free-commercial.mp3', downloads: '1 587' },
+      { title: 'Retro', artist: 'B Sean', src: '/audio/radio/depth/08-retro.mp3', downloads: '1 550' },
+      { title: 'Commercial Music I Guess', artist: 'Seth Makes Sounds', src: '/audio/radio/depth/09-commercial-music.mp3', downloads: '1 521' },
+      { title: 'Background E-Music', artist: 'Clacksberg', src: '/audio/radio/depth/10-background-e-music.mp3', downloads: '1 464' },
     ],
   },
   flow: {
     label: 'Поток',
     title: 'Поток',
-    description: 'Downtempo, trip-hop и спокойная электроника без вокала.',
+    description: 'Самые скачиваемые CC0 downtempo и trip-hop треки без вокала.',
     tracks: [
-      { title: 'Fallen', artist: 'Soulja Unit', src: '/audio/radio/flow/13-flow-fallen.mp3' },
-      { title: 'Welcome to Sector 11', artist: 'patman68', src: '/audio/radio/flow/14-flow-sector-11.mp3' },
-      { title: 'Parallel Universe', artist: 'Andrewkn', src: '/audio/radio/flow/15-flow-parallel-universe.mp3' },
-      { title: 'Struggling', artist: 'Soulja Unit', src: '/audio/radio/flow/16-flow-struggling.mp3' },
-      { title: 'Abstract Dream (Daylight)', artist: 'Soulja Unit', src: '/audio/radio/flow/17-flow-abstract-dream.mp3' },
-      { title: 'Downtemp amb 54E7', artist: 'Nate tha Late', src: '/audio/radio/flow/18-flow-downtemp-54e7.mp3' },
-      { title: 'Haha Void Instrumental', artist: 'HAHAVOID', src: '/audio/radio/flow/19-flow-haha-void.mp3' },
-      { title: 'Mission Failure 9', artist: 'SamuSounds79', src: '/audio/radio/flow/20-flow-mission-failure.mp3' },
-      { title: 'Ancient Times Trip Hop', artist: 'CVLTIV8R', src: '/audio/radio/flow/21-flow-ancient-times.mp3' },
-      { title: '2018-03-22', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/22-flow-2018-03-22.mp3' },
-      { title: '2020-01-04', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/23-flow-2020-01-04.mp3' },
-      { title: '2018-04-18', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/24-flow-2018-04-18.mp3' },
+      { title: 'Parallel Universe', artist: 'Andrewkn', src: '/audio/radio/flow/15-flow-parallel-universe.mp3', downloads: '3 597' },
+      { title: '2020-04-12 Keys', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/flow-keys.mp3', downloads: '1 095' },
+      { title: 'Smoke', artist: 'Cloud-10', src: '/audio/radio/flow/flow-smoke.mp3', downloads: '635' },
+      { title: '2020-01-04', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/23-flow-2020-01-04.mp3', downloads: '626' },
+      { title: 'CHOKAVITZ SOUL', artist: 'LS', src: '/audio/radio/flow/flow-chokavitz.mp3', downloads: '501' },
+      { title: '2019-11-29 2', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/flow-2019-11-29.mp3', downloads: '386' },
+      { title: '2018-03-22', artist: 'Doctor Dreamchip', src: '/audio/radio/flow/22-flow-2018-03-22.mp3', downloads: '336' },
     ],
   },
   air: {
     label: 'Воздух',
     title: 'Воздух',
-    description: 'Длинный evolving ambient без ударных и резких переходов.',
+    description: 'Самые скачиваемые CC0 ambient-композиции без вокала.',
     tracks: [
-      { title: 'Aleatoric Ambient', artist: 'thehorsevalse', src: '/audio/radio/air/05-aleatoric-ambient-29min-preview.mp3' },
-      { title: 'Semi-generative Ambient', artist: 'thehorsevalse', src: '/audio/radio/air/07-semi-generative-ambient-preview.mp3' },
+      { title: 'Calm Background Music', artist: 'Bertsz', src: '/audio/radio/air/air-calm-background.mp3', downloads: '6 898' },
+      { title: 'Era of Space', artist: 'MrPork', src: '/audio/radio/air/air-era-of-space.mp3', downloads: '4 825' },
+      { title: 'Heart Beat of a Dream', artist: 'metrostock99', src: '/audio/radio/air/air-heart-beat-dream.mp3', downloads: '4 032' },
+      { title: 'Stressing Ambient', artist: 'onderwish', src: '/audio/radio/air/air-stressing-ambient.mp3', downloads: '3 171' },
+      { title: 'Lake Night', artist: 'ChristmasKrumble666', src: '/audio/radio/air/air-lake-night.mp3', downloads: '2 771' },
+      { title: 'Jazzy Ambient Piano', artist: 'Hakren', src: '/audio/radio/air/air-jazzy-piano.mp3', downloads: '2 701' },
     ],
   },
 }
@@ -301,7 +305,11 @@ export default function VibeRadio({ full = false }: { full?: boolean }) {
         </button>
         <div className={styles.trackCopy}>
           <strong>{track.title}</strong>
-          <span>{track.artist} · {trackIndex + 1}/{station.tracks.length}</span>
+          <span>
+            {track.artist}
+            {track.downloads ? ` · ${track.downloads} скачиваний` : ''}
+            {' · '}{trackIndex + 1}/{station.tracks.length}
+          </span>
         </div>
         <button
           type="button"
