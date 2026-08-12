@@ -1,0 +1,27 @@
+.intro {
+  width: min(100%, 920px);
+  margin: -8px auto 22px;
+}
+
+.intro p {
+  max-width: 62ch;
+  color: #5c5d52;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.facts {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px auto 0;
+}
+
+.facts span {
+  border: 1px solid #c9c8bc;
+  border-radius: 999px;
+  padding: 7px 13px;
+  color: #6b6c60;
+  font-size: 11px;
+}

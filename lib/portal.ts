@@ -224,7 +224,10 @@ export async function getArticle(idOrSlug: string) {
 
 export async function getBroadcasts() {
   const rows = await prisma.broadcast.findMany({
-    where: { status: { not: 'draft' } },
+    where: {
+      status: { not: 'draft' },
+      title: { not: 'Скоро здесь будет вебинар' },
+    },
     orderBy: [{ sortIndex: 'asc' }],
   })
   return rows.map(toBroadcast)
@@ -234,6 +237,7 @@ export async function getBroadcast(idOrSlug: string) {
   const row = await prisma.broadcast.findFirst({
     where: {
       status: { not: 'draft' },
+      title: { not: 'Скоро здесь будет вебинар' },
       OR: [{ id: idOrSlug }, { slug: idOrSlug }],
     },
   })

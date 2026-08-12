@@ -15,6 +15,8 @@ import Banner from '@/components/portal/Banner'
 import PromoMedia from '@/components/portal/PromoMedia'
 import ArticleCard from '@/components/portal/ArticleCard'
 import SuggestCta from '@/components/portal/SuggestCta'
+import VibeRadio from '@/components/portal/VibeRadio'
+import NewsTicker from '@/components/portal/NewsTicker'
 import styles from './home.module.css'
 
 // Контентом управляет админка — страницы обязаны рендериться на каждый
@@ -65,13 +67,17 @@ export default async function Home() {
                   kind={home.promo.mediaKind}
                   link={home.promo.link}
                 />
-              ) : home.promo.kind === 'hidden' ? null : (
+              ) : home.promo.kind === 'hidden' ? null : promo ? (
                 <LivePromo promo={promo} />
+              ) : (
+                <VibeRadio />
               )}
               <Banner banner={home.banner} />
             </div>
           </div>
         </section>
+
+        <NewsTicker articles={feed} />
 
         <section className={styles.feedSection}>
           <div className={styles.feedHead}>

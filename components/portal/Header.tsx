@@ -16,6 +16,7 @@ const NAV = [
   { href: '/live', label: 'Вебинары' },
   { href: '/tools', label: 'Инструменты' },
   { href: '/learn', label: 'Обучение' },
+  { href: '/radio', label: 'Радио' },
 ] as const
 
 /** Активный пункт меню. Статья подсвечивает «Ленту» — как в прототипе. */
