@@ -1,32 +1,30 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import SectionShell from '@/components/portal/SectionShell'
 import VibeRadio from '@/components/portal/VibeRadio'
+import LofiRadio from './LofiRadio'
 import styles from './radio.module.css'
 
 export const metadata: Metadata = {
-  title: 'Дождь за окном — звук для работы',
+  title: 'Радио VibeCast – дождь и lo-fi',
   description:
-    'Настоящая стереозапись дождя за окном — бесплатно, без рекламы и регистрации.',
+    'Две станции для работы и чтения – стереозапись дождя у окна и инструментальный lo-fi.',
   alternates: { canonical: '/radio' },
 }
 
-export default function RadioPage() {
+export default async function RadioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ station?: string | string[] }>
+}) {
+  const lofi = (await searchParams).station === 'lofi'
   return (
-    <SectionShell kicker="Бесплатный звук" title="Дождь за окном">
-      <div className={styles.intro}>
-        <p>
-          Включайте перед кодингом, чтением или глубокой работой. Настоящая
-          стереозапись дождя у полуоткрытого окна — без рекламы и регистрации.
-        </p>
-      </div>
-      <VibeRadio full />
-      <div className={styles.facts}>
-        <span>Без рекламы</span>
-        <span>Стереозапись у окна</span>
-        <span>Лицензия CC0</span>
-        <span>Без регистрации</span>
-        <span>Работает прямо в браузере</span>
-      </div>
+    <SectionShell title="Радио VibeCast">
+      <nav className={styles.stations} aria-label="Станции радио">
+        <Link href="/radio" aria-current={lofi ? undefined : 'page'}>Дождь</Link>
+        <Link href="/radio?station=lofi" aria-current={lofi ? 'page' : undefined}>Lo-fi</Link>
+      </nav>
+      {lofi ? <LofiRadio /> : <VibeRadio full />}
     </SectionShell>
   )
 }

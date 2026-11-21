@@ -1,27 +1,31 @@
-.intro {
-  width: min(100%, 920px);
-  margin: -8px auto 22px;
-}
-
-.intro p {
-  max-width: 62ch;
-  color: #5c5d52;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.facts {
+.stations {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 18px auto 0;
+  width: min(100%, 920px);
+  margin: 0 auto 14px;
 }
 
-.facts span {
-  border: 1px solid #c9c8bc;
-  border-radius: 999px;
-  padding: 7px 13px;
-  color: #6b6c60;
-  font-size: 11px;
+.stations a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 7px 16px;
+  border: 1px solid #b4b3a6;
+  border-radius: 99px;
+  color: #15160f;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.stations a:hover {
+  background: #d8d9ce;
+}
+
+.stations a[aria-current='page'] {
+  border-color: #15160f;
+  background: #15160f;
+  color: #e3fb91;
 }

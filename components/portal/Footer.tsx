@@ -33,7 +33,7 @@ const SECTIONS = [
   { href: '/live', label: 'Вебинары' },
   { href: '/tools', label: 'Инструменты' },
   { href: '/learn', label: 'Обучение' },
-  { href: '/radio', label: 'Дождь' },
+  { href: '/radio', label: 'Радио' },
   { href: '/suggest', label: 'Предложить новость' },
 ] as const
 
